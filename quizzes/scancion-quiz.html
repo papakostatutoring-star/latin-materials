@@ -1,0 +1,2612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glossomathia · Scansion Trainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Cormorant+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #FBF6EC;
+  --cream-deep: #F5EEDF;
+  --ink: #3A2A3A;
+  --ink-soft: #5C4A5C;
+  --ink-mute: #8A7A8A;
+  --rose: #F2C8C8;
+  --rose-deep: #D89898;
+  --sage: #C8DCC4;
+  --sage-deep: #94B58D;
+  --lav: #D6C7E8;
+  --lav-deep: #A893C8;
+  --butter: #F3E2A8;
+  --butter-deep: #D4B968;
+  --peri: #C6D2EC;
+  --peri-deep: #8AA0C8;
+  --peach: #F6D2B0;
+  --peach-deep: #D89E6A;
+  --rule: rgba(58, 42, 58, 0.15);
+  --shadow: 0 1px 3px rgba(58, 42, 58, 0.06), 0 4px 12px rgba(58, 42, 58, 0.04);
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0;
+  background: var(--cream);
+  color: var(--ink);
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 17px;
+  line-height: 1.55;
+  min-height: 100vh;
+}
+body {
+  background-image:
+    radial-gradient(ellipse at 10% 10%, rgba(214, 199, 232, 0.18), transparent 50%),
+    radial-gradient(ellipse at 90% 30%, rgba(242, 200, 200, 0.16), transparent 55%),
+    radial-gradient(ellipse at 30% 90%, rgba(200, 220, 196, 0.18), transparent 50%);
+  background-attachment: fixed;
+}
+.app-shell {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 40px 32px 80px;
+  min-height: 100vh;
+}
+.brandbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 22px;
+  margin-bottom: 32px;
+  border-bottom: 1px solid var(--rule);
+}
+.brandbar .mark {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 22px;
+  color: var(--rose-deep);
+  cursor: pointer;
+  text-decoration: none;
+}
+.brandbar .mark::before {
+  content: "❦ ";
+  color: var(--peach-deep);
+  font-style: normal;
+}
+.brandbar nav {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  font-family: 'Cormorant SC', serif;
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  color: var(--ink-soft);
+}
+.brandbar nav a {
+  color: var(--ink-soft);
+  text-decoration: none;
+  cursor: pointer;
+  padding: 4px 0;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.15s;
+}
+.brandbar nav a:hover { border-bottom-color: var(--rose-deep); }
+.brandbar .user-chip {
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  font-size: 14px;
+  letter-spacing: 0;
+  color: var(--lav-deep);
+  text-transform: none;
+}
+
+/* Headings */
+h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 500;
+  font-size: 48px;
+  line-height: 1.05;
+  margin: 0 0 12px;
+  letter-spacing: -0.01em;
+}
+h1 .amp { color: var(--rose-deep); font-weight: 400; }
+h2 {
+  font-family: 'Cormorant SC', serif;
+  font-weight: 600;
+  font-size: 20px;
+  letter-spacing: 0.16em;
+  margin: 0 0 8px;
+  color: var(--ink);
+}
+h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 500;
+  font-size: 24px;
+  margin: 0 0 10px;
+  color: var(--ink);
+}
+.subtitle {
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  font-size: 18px;
+  color: var(--ink-soft);
+  margin: 0 0 28px;
+}
+.eyebrow {
+  font-family: 'Cormorant SC', serif;
+  font-size: 12px;
+  letter-spacing: 0.32em;
+  color: var(--lav-deep);
+  margin-bottom: 10px;
+}
+
+/* Cards */
+.card {
+  background: rgba(255,255,255,0.55);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 24px 28px;
+  margin: 18px 0;
+  box-shadow: var(--shadow);
+}
+.card.rose    { background: linear-gradient(180deg, rgba(242,200,200,0.30), rgba(242,200,200,0.10)); border-color: rgba(216,152,152,0.35); }
+.card.sage    { background: linear-gradient(180deg, rgba(200,220,196,0.32), rgba(200,220,196,0.10)); border-color: rgba(148,181,141,0.35); }
+.card.lav     { background: linear-gradient(180deg, rgba(214,199,232,0.32), rgba(214,199,232,0.10)); border-color: rgba(168,147,200,0.35); }
+.card.butter  { background: linear-gradient(180deg, rgba(243,226,168,0.32), rgba(243,226,168,0.10)); border-color: rgba(212,185,104,0.35); }
+.card.peri    { background: linear-gradient(180deg, rgba(198,210,236,0.32), rgba(198,210,236,0.10)); border-color: rgba(138,160,200,0.35); }
+.card.peach   { background: linear-gradient(180deg, rgba(246,210,176,0.32), rgba(246,210,176,0.10)); border-color: rgba(216,158,106,0.35); }
+
+/* Buttons */
+.btn {
+  display: inline-block;
+  padding: 10px 22px;
+  font-family: 'Cormorant SC', serif;
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  color: var(--ink);
+  background: rgba(255,255,255,0.7);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-decoration: none;
+  text-align: center;
+}
+.btn:hover { background: rgba(255,255,255,0.95); border-color: var(--rose-deep); transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+.btn.primary {
+  background: var(--rose-deep);
+  color: white;
+  border-color: var(--rose-deep);
+}
+.btn.primary:hover { background: #C58484; border-color: #C58484; }
+.btn.sage { background: var(--sage-deep); color: white; border-color: var(--sage-deep); }
+.btn.lav { background: var(--lav-deep); color: white; border-color: var(--lav-deep); }
+.btn.peri { background: var(--peri-deep); color: white; border-color: var(--peri-deep); }
+.btn.peach { background: var(--peach-deep); color: white; border-color: var(--peach-deep); }
+.btn.large { padding: 14px 36px; font-size: 14px; }
+.btn.ghost { background: transparent; }
+.btn-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 18px; }
+
+/* Inputs */
+.input, .textarea, .select {
+  width: 100%;
+  padding: 10px 14px;
+  font-family: 'EB Garamond', serif;
+  font-size: 17px;
+  color: var(--ink);
+  background: rgba(255,255,255,0.8);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  font-style: italic;
+}
+.input:focus, .textarea:focus, .select:focus {
+  outline: none;
+  border-color: var(--rose-deep);
+  background: white;
+}
+label {
+  display: block;
+  font-family: 'Cormorant SC', serif;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
+  margin-top: 14px;
+}
+
+/* HOME page */
+.hero {
+  text-align: center;
+  padding: 32px 0 24px;
+}
+.hero .ornament {
+  color: var(--peach-deep);
+  font-size: 22px;
+  letter-spacing: 0.3em;
+  margin: 14px 0 8px;
+}
+.user-select {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 380px;
+  margin: 0 auto;
+}
+.user-pill {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 22px;
+  background: rgba(255,255,255,0.7);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.user-pill:hover { border-color: var(--rose-deep); background: white; }
+.user-pill .name {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 22px;
+  color: var(--ink);
+}
+.user-pill .stat {
+  font-family: 'Cormorant SC', serif;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--ink-mute);
+}
+.add-user-form {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* LEVEL SELECT */
+.level-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+  margin-top: 24px;
+}
+.level-card {
+  padding: 26px 24px;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.level-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(58,42,58,0.08); }
+.level-card.l1 { background: linear-gradient(135deg, rgba(214,199,232,0.4), rgba(214,199,232,0.1)); }
+.level-card.l2 { background: linear-gradient(135deg, rgba(200,220,196,0.4), rgba(200,220,196,0.1)); }
+.level-card.l3 { background: linear-gradient(135deg, rgba(243,226,168,0.4), rgba(243,226,168,0.1)); }
+.level-card.l4 { background: linear-gradient(135deg, rgba(242,200,200,0.4), rgba(242,200,200,0.1)); }
+.level-card .num {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 48px;
+  color: var(--ink);
+  line-height: 1;
+  opacity: 0.4;
+  margin-bottom: 4px;
+}
+.level-card.l1 .num { color: var(--lav-deep); }
+.level-card.l2 .num { color: var(--sage-deep); }
+.level-card.l3 .num { color: var(--butter-deep); }
+.level-card.l4 .num { color: var(--rose-deep); }
+.level-card .lat {
+  font-family: 'Cormorant SC', serif;
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  color: var(--ink-soft);
+  margin-top: 6px;
+}
+.level-card .title {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 26px;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.level-card .desc {
+  color: var(--ink-soft);
+  font-size: 15px;
+  line-height: 1.4;
+}
+.level-card .mastery {
+  margin-top: 14px;
+  height: 4px;
+  background: rgba(58,42,58,0.08);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.level-card .mastery-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s;
+}
+.level-card.l1 .mastery-fill { background: var(--lav-deep); }
+.level-card.l2 .mastery-fill { background: var(--sage-deep); }
+.level-card.l3 .mastery-fill { background: var(--butter-deep); }
+.level-card.l4 .mastery-fill { background: var(--rose-deep); }
+.level-card .mastery-label {
+  font-family: 'Cormorant SC', serif;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--ink-mute);
+  margin-top: 6px;
+}
+
+/* TRAINER pages */
+.trainer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--rule);
+}
+.trainer-header .meta {
+  font-family: 'Cormorant SC', serif;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  color: var(--ink-soft);
+}
+.trainer-header .score {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 18px;
+  color: var(--ink);
+}
+.trainer-header .score .correct { color: var(--sage-deep); font-weight: 600; }
+.trainer-header .score .wrong { color: var(--rose-deep); font-weight: 600; }
+
+.line-display {
+  background: rgba(255,255,255,0.7);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 36px 28px;
+  margin: 22px 0;
+  text-align: center;
+  font-size: 26px;
+  line-height: 1.7;
+  color: var(--ink);
+}
+.line-source {
+  font-family: 'Cormorant SC', serif;
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  color: var(--ink-mute);
+  margin-bottom: 14px;
+}
+.original-text {
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  font-size: 21px;
+  color: var(--ink-soft);
+  padding-bottom: 18px;
+  margin-bottom: 22px;
+  border-bottom: 1px dotted var(--rule);
+  line-height: 1.4;
+}
+.syl-breakdown-label {
+  font-family: 'Cormorant SC', serif;
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  color: var(--ink-mute);
+  margin-bottom: 12px;
+}
+.line-text { font-family: 'EB Garamond', serif; font-style: italic; }
+
+/* SYLLABLE display (single highlighted) */
+.syl-line {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  gap: 0;
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  font-size: 24px;
+}
+.syl-line .syl {
+  padding: 2px 4px;
+  border-radius: 3px;
+  color: var(--ink);
+}
+.syl-line .syl.target {
+  background: var(--butter);
+  color: var(--ink);
+  font-weight: 600;
+  padding: 6px 10px;
+  margin: 0 2px;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(212,185,104,0.4);
+  font-size: 28px;
+}
+.syl-line .punct {
+  color: var(--ink-soft);
+  margin: 0 2px;
+}
+.syl-line .space { width: 14px; }
+
+/* SYLLABLE display (full clickable line) */
+.syl-line.clickable .syl {
+  cursor: pointer;
+  padding: 4px 6px;
+  margin: 0 1px;
+  transition: all 0.12s;
+}
+.syl-line.clickable .syl:hover { background: rgba(214,199,232,0.3); }
+.syl-line .syl[data-mark="L"] {
+  background: rgba(138,160,200,0.18);
+  border-bottom: 2px solid var(--peri-deep);
+}
+.syl-line .syl[data-mark="S"] {
+  background: rgba(148,181,141,0.18);
+  border-bottom: 2px solid var(--sage-deep);
+}
+.syl-line .syl[data-mark="X"] {
+  background: rgba(168,147,200,0.18);
+  border-bottom: 2px dotted var(--lav-deep);
+}
+.syl-line .quant-mark {
+  display: block;
+  text-align: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+.syl-line .quant-mark.L { color: var(--peri-deep); }
+.syl-line .quant-mark.S { color: var(--sage-deep); }
+
+/* Caesura clicker for L4 */
+.caesura-line {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: stretch;
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  font-size: 22px;
+  padding: 20px 0;
+}
+.caesura-line .syl-block {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 4px;
+}
+.caesura-line .caesura-slot {
+  display: inline-flex;
+  align-items: center;
+  width: 18px;
+  cursor: pointer;
+  position: relative;
+}
+.caesura-line .caesura-slot:hover::after {
+  content: "‖";
+  color: var(--rose-deep);
+  opacity: 0.4;
+  font-size: 28px;
+  font-weight: bold;
+}
+.caesura-line .caesura-slot.selected::after {
+  content: "‖";
+  color: var(--rose-deep);
+  opacity: 1;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+/* Elision spots */
+.elision-line {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  font-size: 24px;
+  line-height: 1.8;
+  padding: 18px 0;
+}
+.elision-word {
+  position: relative;
+  padding: 4px 4px;
+}
+.elision-gap {
+  display: inline-block;
+  width: 20px;
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+  height: 32px;
+}
+.elision-gap::before {
+  content: "·";
+  color: var(--rule);
+  font-size: 28px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.elision-gap:hover::before { color: var(--rose-deep); }
+.elision-gap.marked::before {
+  content: "‿";
+  color: var(--rose-deep);
+  font-size: 26px;
+  font-weight: bold;
+}
+
+/* Quantity buttons */
+.quant-buttons {
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+  margin: 28px 0 18px;
+}
+.quant-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 130px;
+  height: 110px;
+  border: 2px solid var(--rule);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.7);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: 'Cormorant SC', serif;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  color: var(--ink-soft);
+}
+.quant-btn:hover { transform: translateY(-2px); border-color: var(--ink-soft); box-shadow: 0 4px 12px rgba(58,42,58,0.08); }
+.quant-btn .glyph {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.quant-btn.long .glyph { color: var(--peri-deep); }
+.quant-btn.short .glyph { color: var(--sage-deep); }
+.quant-btn.long:hover { border-color: var(--peri-deep); background: rgba(198,210,236,0.2); }
+.quant-btn.short:hover { border-color: var(--sage-deep); background: rgba(200,220,196,0.2); }
+
+.foot-buttons { display: flex; gap: 14px; justify-content: center; margin: 22px 0; }
+.foot-btn {
+  flex: 1;
+  max-width: 220px;
+  padding: 18px 22px;
+  border: 2px solid var(--rule);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.7);
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+.foot-btn:hover { transform: translateY(-2px); }
+.foot-btn .pattern {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--peach-deep);
+  margin-bottom: 4px;
+}
+.foot-btn .name {
+  font-family: 'Cormorant SC', serif;
+  font-size: 13px;
+  letter-spacing: 0.22em;
+  color: var(--ink-soft);
+}
+
+/* Feedback */
+.feedback {
+  margin-top: 22px;
+  padding: 18px 22px;
+  border-radius: 6px;
+  font-size: 16px;
+  line-height: 1.5;
+}
+.feedback.correct {
+  background: rgba(200,220,196,0.3);
+  border-left: 3px solid var(--sage-deep);
+  color: var(--ink);
+}
+.feedback.wrong {
+  background: rgba(242,200,200,0.3);
+  border-left: 3px solid var(--rose-deep);
+  color: var(--ink);
+}
+.feedback .verdict {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 19px;
+  margin-bottom: 6px;
+}
+.feedback.correct .verdict { color: var(--sage-deep); }
+.feedback.wrong .verdict { color: var(--rose-deep); }
+.feedback .rule {
+  font-family: 'Cormorant SC', serif;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--ink-soft);
+  margin-top: 8px;
+  display: inline-block;
+}
+.feedback .explanation {
+  margin-top: 4px;
+  font-style: italic;
+  color: var(--ink-soft);
+}
+
+/* Caesura selector text */
+.cap-question {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 22px;
+  text-align: center;
+  margin: 20px 0 10px;
+  color: var(--ink);
+}
+
+/* Teacher mode */
+.teacher-section { margin: 28px 0; }
+.line-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 360px;
+  overflow-y: auto;
+  padding: 4px;
+}
+.line-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: rgba(255,255,255,0.6);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+}
+.line-row .src {
+  font-family: 'Cormorant SC', serif;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--ink-mute);
+  min-width: 80px;
+}
+.line-row .ltext {
+  font-style: italic;
+  flex: 1;
+  margin: 0 12px;
+  color: var(--ink);
+  font-size: 16px;
+}
+.line-row .pat {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 14px;
+  color: var(--peach-deep);
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  margin-right: 8px;
+}
+.line-row.starter { background: rgba(214,199,232,0.15); }
+.line-row .badge {
+  font-family: 'Cormorant SC', serif;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: var(--lav-deep);
+  background: rgba(214,199,232,0.4);
+  padding: 2px 6px;
+  border-radius: 3px;
+  margin-right: 6px;
+}
+
+.add-line-form {
+  background: rgba(255,255,255,0.5);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 20px 22px;
+  margin-top: 14px;
+}
+.syl-editor {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 14px;
+  background: rgba(255,255,255,0.7);
+  border: 1px dashed var(--rule);
+  border-radius: 4px;
+  margin-top: 8px;
+}
+.syl-editor .syl-input {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.syl-editor input[type=text] {
+  width: 70px;
+  padding: 4px 6px;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  font-size: 15px;
+  text-align: center;
+  background: white;
+}
+.syl-editor .q-toggle {
+  display: flex;
+  gap: 2px;
+}
+.syl-editor .q-toggle button {
+  width: 32px;
+  height: 28px;
+  border: 1px solid var(--rule);
+  background: white;
+  cursor: pointer;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink-mute);
+}
+.syl-editor .q-toggle button.on { background: var(--ink); color: white; border-color: var(--ink); }
+.syl-editor .q-toggle button:first-child { border-radius: 3px 0 0 3px; }
+.syl-editor .q-toggle button:last-child { border-radius: 0 3px 3px 0; }
+.syl-editor .del-syl {
+  font-size: 11px;
+  color: var(--rose-deep);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* Stats */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin: 20px 0;
+}
+.stat-block {
+  background: rgba(255,255,255,0.7);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 16px 14px;
+  text-align: center;
+}
+.stat-block .num {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1;
+}
+.stat-block .lbl {
+  font-family: 'Cormorant SC', serif;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--ink-mute);
+  margin-top: 8px;
+}
+.stat-block.sage .num { color: var(--sage-deep); }
+.stat-block.rose .num { color: var(--rose-deep); }
+.stat-block.lav .num { color: var(--lav-deep); }
+.stat-block.peri .num { color: var(--peri-deep); }
+
+.rule-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+.rule-stat-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.rule-stat-row .rname {
+  flex: 1;
+  font-family: 'Cormorant SC', serif;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: var(--ink-soft);
+}
+.rule-stat-row .rbar {
+  flex: 2;
+  height: 8px;
+  background: rgba(58,42,58,0.06);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.rule-stat-row .rbar-fill {
+  height: 100%;
+  background: var(--sage-deep);
+}
+.rule-stat-row .rnum {
+  min-width: 60px;
+  text-align: right;
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+
+/* Hint */
+.hint-box {
+  margin-top: 12px;
+  padding: 12px 16px;
+  background: rgba(243,226,168,0.25);
+  border-left: 3px solid var(--butter-deep);
+  border-radius: 0 4px 4px 0;
+  font-style: italic;
+  font-size: 15px;
+  color: var(--ink-soft);
+}
+
+/* Footer */
+.foot-mark {
+  text-align: center;
+  margin-top: 50px;
+  padding-top: 22px;
+  border-top: 1px solid var(--rule);
+  font-family: 'Cormorant SC', serif;
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  color: var(--lav-deep);
+}
+.foot-mark .gname {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--rose-deep);
+  text-transform: none;
+  margin-left: 4px;
+  letter-spacing: 0;
+}
+
+/* Modals */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(58,42,58,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 20px;
+}
+.modal {
+  background: var(--cream);
+  border-radius: 10px;
+  padding: 32px;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(58,42,58,0.3);
+}
+
+@media (max-width: 640px) {
+  .app-shell { padding: 24px 18px 60px; }
+  h1 { font-size: 36px; }
+  .level-grid { grid-template-columns: 1fr; }
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .line-display { font-size: 20px; padding: 24px 16px; }
+  .syl-line { font-size: 20px; }
+  .syl-line .syl.target { font-size: 22px; }
+  .quant-btn { width: 110px; height: 90px; }
+  .quant-btn .glyph { font-size: 38px; }
+  .brandbar nav { gap: 12px; font-size: 10px; }
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+/* ==================== DATA: STARTER LINES ==================== */
+/* Each line: id, source, text, syls (array of {t, q, r, e?, el?}), feet, pattern, caesura, elisions */
+/* q = "L" (long) or "S" (short); r = rule code; e = brief explanation; el = elision marker between this and next syl */
+
+const STARTER_LINES = [
+  {
+    id: 'aen_1_1',
+    source: 'Aen. 1.1',
+    text: 'Arma virumque canō, Trōiae quī prīmus ab ōrīs',
+    syls: [
+      { t: 'Ar',  q: 'L', r: 'pos',  e: 'closed by r+m within "Arma"' },
+      { t: 'ma',  q: 'S', r: 'open', e: 'open syllable, vowel short by nature' },
+      { t: 'vi',  q: 'S', r: 'open', e: 'open syllable, short i' },
+      { t: 'rum', q: 'L', r: 'pos',  e: 'closed by m + qu (across word boundary)' },
+      { t: 'que', q: 'S', r: 'open', e: 'open syllable, short e of -que' },
+      { t: 'ca',  q: 'S', r: 'open', e: 'open syllable, short a' },
+      { t: 'nō',  q: 'L', r: 'nat',  e: '1sg present ending — long ō' },
+      { t: 'Trō', q: 'L', r: 'pos',  e: 'consonantal i in "Troiae" doubles, closing Trō' },
+      { t: 'iae', q: 'L', r: 'diph', e: 'diphthong ae — always long' },
+      { t: 'quī', q: 'L', r: 'nat',  e: 'long ī by nature' },
+      { t: 'prī', q: 'L', r: 'nat',  e: 'long ī by nature' },
+      { t: 'mu',  q: 'S', r: 'open', e: 's of "primus" resyllabified to "ab"' },
+      { t: 'sa',  q: 'S', r: 'open', e: 'open after resyllabification across word boundary' },
+      { t: 'bō',  q: 'L', r: 'nat',  e: 'b prepended to ōrīs; ō long by nature' },
+      { t: 'rīs', q: 'L', r: 'nat',  e: 'long ī; final anceps marked long' }
+    ],
+    feet: [[0,1,2],[3,4,5],[6,7],[8,9],[10,11,12],[13,14]],
+    pattern: 'DDSSDS',
+    caesura: 7,
+    elisions: []
+  },
+  {
+    id: 'aen_1_4',
+    source: 'Aen. 1.4',
+    text: 'vī superum saevae memorem Iūnōnis ob īram',
+    syls: [
+      { t: 'vī',  q: 'L', r: 'nat',  e: 'long ī by nature' },
+      { t: 'su',  q: 'S', r: 'open', e: 'open, short u' },
+      { t: 'pe',  q: 'S', r: 'open', e: 'open, short e' },
+      { t: 'rum', q: 'L', r: 'pos',  e: 'closed by m + s of "saevae" (2 consonants across boundary)' },
+      { t: 'sae', q: 'L', r: 'diph', e: 'diphthong ae' },
+      { t: 'vae', q: 'L', r: 'diph', e: 'diphthong ae' },
+      { t: 'me',  q: 'S', r: 'open', e: 'open, short e' },
+      { t: 'mo',  q: 'S', r: 'open', e: 'open, short o' },
+      { t: 'rem', q: 'L', r: 'pos',  e: 'closed by m + consonantal i (j) of "Iūnōnis"' },
+      { t: 'Iū',  q: 'L', r: 'nat',  e: 'long ū by nature' },
+      { t: 'nō',  q: 'L', r: 'nat',  e: 'long ō by nature' },
+      { t: 'ni',  q: 'S', r: 'open', e: 's of "Iūnōnis" resyllabified to "ob"; ni open and short' },
+      { t: 'so',  q: 'S', r: 'open', e: 'open, short o (originally "ob")' },
+      { t: 'bī',  q: 'L', r: 'nat',  e: 'b prepended to "īram"; ī long by nature' },
+      { t: 'ram', q: 'L', r: 'nat',  e: 'final syllable; anceps marked long' }
+    ],
+    feet: [[0,1,2],[3,4],[5,6,7],[8,9],[10,11,12],[13,14]],
+    pattern: 'DSDSDS',
+    caesura: 6,
+    elisions: []
+  },
+  {
+    id: 'aen_1_33',
+    source: 'Aen. 1.33',
+    text: 'tantae mōlis erat Rōmānam condere gentem',
+    syls: [
+      { t: 'tan', q: 'L', r: 'pos',  e: 'closed by n + t' },
+      { t: 'tae', q: 'L', r: 'diph', e: 'diphthong ae' },
+      { t: 'mō',  q: 'L', r: 'nat',  e: 'long ō by nature' },
+      { t: 'li',  q: 'S', r: 'open', e: 's of "mōlis" resyllabified to "erat"; li open and short' },
+      { t: 'se',  q: 'S', r: 'open', e: 'open syllable; short e of "erat"' },
+      { t: 'rat', q: 'L', r: 'pos',  e: 'closed by t + R of "Rōmānam"' },
+      { t: 'Rō',  q: 'L', r: 'nat',  e: 'long ō by nature' },
+      { t: 'mā',  q: 'L', r: 'nat',  e: 'long ā by nature' },
+      { t: 'nam', q: 'L', r: 'pos',  e: 'closed by m + c of "condere"' },
+      { t: 'con', q: 'L', r: 'pos',  e: 'closed by n + d' },
+      { t: 'de',  q: 'S', r: 'open', e: 'open, short e' },
+      { t: 're',  q: 'S', r: 'open', e: 'open, short e' },
+      { t: 'gen', q: 'L', r: 'pos',  e: 'closed by n + t' },
+      { t: 'tem', q: 'L', r: 'nat',  e: 'final syllable; anceps marked long' }
+    ],
+    feet: [[0,1],[2,3,4],[5,6],[7,8],[9,10,11],[12,13]],
+    pattern: 'SDSSDS',
+    caesura: 6,
+    elisions: []
+  },
+  {
+    id: 'aen_1_118',
+    source: 'Aen. 1.118',
+    text: 'apparent rārī nantēs in gurgite vāstō',
+    syls: [
+      { t: 'ap',  q: 'L', r: 'pos',  e: 'closed by p (geminate pp)' },
+      { t: 'pā',  q: 'L', r: 'nat',  e: 'long ā in stem of appāreō' },
+      { t: 'rent', q: 'L', r: 'pos', e: 'closed by n + t' },
+      { t: 'rā',  q: 'L', r: 'nat',  e: 'long ā by nature' },
+      { t: 'rī',  q: 'L', r: 'nat',  e: 'long ī by nature' },
+      { t: 'nan', q: 'L', r: 'pos',  e: 'closed by n + t' },
+      { t: 'tē',  q: 'L', r: 'nat',  e: 'long ē by nature (s resyllabified to "in")' },
+      { t: 'sin', q: 'L', r: 'pos',  e: 's prepended; closed by n + g of "gurgite"' },
+      { t: 'gur', q: 'L', r: 'pos',  e: 'closed by r + g' },
+      { t: 'gi',  q: 'S', r: 'open', e: 'open, short i' },
+      { t: 'te',  q: 'S', r: 'open', e: 'open, short e' },
+      { t: 'vā',  q: 'L', r: 'nat',  e: 'long ā by nature' },
+      { t: 'stō', q: 'L', r: 'nat',  e: 'long ō; final anceps marked long' }
+    ],
+    feet: [[0,1],[2,3],[4,5],[6,7],[8,9,10],[11,12]],
+    pattern: 'SSSSDS',
+    caesura: 5,
+    elisions: []
+  },
+  {
+    id: 'aen_2_40',
+    source: 'Aen. 2.40',
+    text: 'prīmus ibi ante omnēs magnā comitante catervā',
+    syls: [
+      { t: 'prī', q: 'L', r: 'nat',  e: 'long ī by nature' },
+      { t: 'mu',  q: 'S', r: 'open', e: 's of "primus" resyllabified to "ibi"' },
+      { t: 'si',  q: 'S', r: 'open', e: 'open, short i (s prepended, vowel of "ibi" short)' },
+      { t: 'ban', q: 'L', r: 'pos',  e: 'after elision of "ibi-ante", b joins a of ante; closed by n+t' },
+      { t: 'tom', q: 'L', r: 'pos',  e: 'after elision of "ante-omnēs", t joins o of omnēs; closed by m+n' },
+      { t: 'nēs', q: 'L', r: 'nat',  e: 'long ē; also closed by s+m' },
+      { t: 'mag', q: 'L', r: 'pos',  e: 'closed by g + n' },
+      { t: 'nā',  q: 'L', r: 'nat',  e: 'long ā by nature' },
+      { t: 'co',  q: 'S', r: 'open', e: 'open, short o' },
+      { t: 'mi',  q: 'S', r: 'open', e: 'open, short i' },
+      { t: 'tan', q: 'L', r: 'pos',  e: 'closed by n + t' },
+      { t: 'te',  q: 'S', r: 'open', e: 'open, short e' },
+      { t: 'ca',  q: 'S', r: 'open', e: 'open, short a' },
+      { t: 'ter', q: 'L', r: 'pos',  e: 'closed by r + v' },
+      { t: 'vā',  q: 'L', r: 'nat',  e: 'long ā; final anceps marked long' }
+    ],
+    feet: [[0,1,2],[3,4],[5,6],[7,8,9],[10,11,12],[13,14]],
+    pattern: 'DSSDDS',
+    caesura: 6,
+    elisions: ['ibi-ante (final i drops)', 'ante-omnēs (final e drops)']
+  },
+  {
+    id: 'aen_2_49',
+    source: 'Aen. 2.49',
+    text: 'quidquid id est, timeō Danaōs et dōna ferentēs',
+    syls: [
+      { t: 'quid', q: 'L', r: 'pos', e: 'closed by d + qu' },
+      { t: 'qui',  q: 'S', r: 'open', e: 'd of 2nd quid resyllabified; open, short i' },
+      { t: 'di',   q: 'S', r: 'open', e: 'open, short i (of "id")' },
+      { t: 'dest', q: 'L', r: 'pos', e: 'd of "id" prepended; closed by st' },
+      { t: 'ti',   q: 'S', r: 'open', e: 'open, short i' },
+      { t: 'me',   q: 'S', r: 'open', e: 'open, short e' },
+      { t: 'ō',    q: 'L', r: 'nat', e: '1sg present ending — long ō' },
+      { t: 'Da',   q: 'S', r: 'open', e: 'open, short a' },
+      { t: 'na',   q: 'S', r: 'open', e: 'open, short a' },
+      { t: 'ō',    q: 'L', r: 'nat', e: 'long ō (s resyllabified to "et")' },
+      { t: 'set',  q: 'L', r: 'pos', e: 's prepended; closed by t + d of "dōna"' },
+      { t: 'dō',   q: 'L', r: 'nat', e: 'long ō by nature' },
+      { t: 'na',   q: 'S', r: 'open', e: 'open, short a' },
+      { t: 'fe',   q: 'S', r: 'open', e: 'open, short e' },
+      { t: 'ren',  q: 'L', r: 'pos', e: 'closed by n + t' },
+      { t: 'tēs',  q: 'L', r: 'nat', e: 'long ē; final anceps marked long' }
+    ],
+    feet: [[0,1,2],[3,4,5],[6,7,8],[9,10],[11,12,13],[14,15]],
+    pattern: 'DDDSDS',
+    caesura: 7,
+    elisions: []
+  },
+  {
+    id: 'aen_6_847',
+    source: 'Aen. 6.847',
+    text: 'excūdent aliī spīrantia mollius aera',
+    syls: [
+      { t: 'ex',   q: 'L', r: 'pos', e: 'closed by x (= c+s, double consonant)' },
+      { t: 'cū',   q: 'L', r: 'nat', e: 'long ū by nature' },
+      { t: 'dent', q: 'L', r: 'pos', e: 'closed by n + t' },
+      { t: 'a',    q: 'S', r: 'open', e: 'open, short a' },
+      { t: 'li',   q: 'S', r: 'open', e: 'open, short i' },
+      { t: 'ī',    q: 'L', r: 'nat', e: 'long ī by nature' },
+      { t: 'spī',  q: 'L', r: 'nat', e: 'long ī by nature' },
+      { t: 'ran',  q: 'L', r: 'pos', e: 'closed by n + t' },
+      { t: 'ti',   q: 'S', r: 'open', e: 'open, short i' },
+      { t: 'a',    q: 'S', r: 'open', e: 'open, short a' },
+      { t: 'mol',  q: 'L', r: 'pos', e: 'closed by l (geminate ll)' },
+      { t: 'li',   q: 'S', r: 'open', e: 'open, short i' },
+      { t: 'u',    q: 'S', r: 'open', e: 's of "mollius" resyllabified to "aera"' },
+      { t: 'sae',  q: 'L', r: 'diph', e: 's prepended; ae is the diphthong of "aera"' },
+      { t: 'ra',   q: 'L', r: 'final', e: 'final anceps marked long' }
+    ],
+    feet: [[0,1],[2,3,4],[5,6],[7,8,9],[10,11,12],[13,14]],
+    pattern: 'SDSDDS',
+    caesura: 6,
+    elisions: []
+  },
+  {
+    id: 'aen_6_851',
+    source: 'Aen. 6.851',
+    text: 'tū regere imperiō populōs, Rōmāne, mementō',
+    syls: [
+      { t: 'tū',  q: 'L', r: 'nat', e: 'long ū by nature' },
+      { t: 're',  q: 'S', r: 'open', e: 'open, short e' },
+      { t: 'ge',  q: 'S', r: 'open', e: 'open, short e' },
+      { t: 'rim', q: 'L', r: 'pos', e: 'final e of "regere" ELIDED with i of "imperiō"; closed by m + p' },
+      { t: 'pe',  q: 'S', r: 'open', e: 'open, short e' },
+      { t: 'ri',  q: 'S', r: 'open', e: 'open, short i' },
+      { t: 'ō',   q: 'L', r: 'nat', e: 'long ō (ablative ending)' },
+      { t: 'po',  q: 'S', r: 'open', e: 'open, short o' },
+      { t: 'pu',  q: 'S', r: 'open', e: 'open, short u' },
+      { t: 'lōs', q: 'L', r: 'nat', e: 'long ō; closed by s + R of "Rōmāne"' },
+      { t: 'Rō',  q: 'L', r: 'nat', e: 'long ō by nature' },
+      { t: 'mā',  q: 'L', r: 'nat', e: 'long ā by nature' },
+      { t: 'ne',  q: 'S', r: 'open', e: 'open, short e' },
+      { t: 'me',  q: 'S', r: 'open', e: 'open, short e' },
+      { t: 'men', q: 'L', r: 'pos', e: 'closed by n + t' },
+      { t: 'tō',  q: 'L', r: 'nat', e: 'long ō; final anceps marked long' }
+    ],
+    feet: [[0,1,2],[3,4,5],[6,7,8],[9,10],[11,12,13],[14,15]],
+    pattern: 'DDDSDS',
+    caesura: 7,
+    elisions: ['regere-imperiō (final e of regere drops)']
+  },
+  {
+    id: 'aen_8_596',
+    source: 'Aen. 8.596',
+    text: 'quadrupedante putrem sonitū quatit ungula campum',
+    syls: [
+      { t: 'quad', q: 'L', r: 'pos', e: 'closed by d + r' },
+      { t: 'ru',   q: 'S', r: 'open', e: 'open, short u' },
+      { t: 'pe',   q: 'S', r: 'open', e: 'open, short e' },
+      { t: 'dan',  q: 'L', r: 'pos', e: 'closed by n + t' },
+      { t: 'te',   q: 'S', r: 'open', e: 'open, short e' },
+      { t: 'pu',   q: 'S', r: 'open', e: 'open, short u (muta-cum-liquida tr counts as one for the previous)' },
+      { t: 'trem', q: 'L', r: 'pos', e: 'closed by m + s of "sonitū"' },
+      { t: 'so',   q: 'S', r: 'open', e: 'open, short o' },
+      { t: 'ni',   q: 'S', r: 'open', e: 'open, short i' },
+      { t: 'tū',   q: 'L', r: 'nat', e: 'long ū (ablative ending)' },
+      { t: 'qua',  q: 'S', r: 'open', e: 'open, short a (qu = one consonant)' },
+      { t: 'ti',   q: 'S', r: 'open', e: 'final t of "quatit" resyllabified to "ungula"; open, short i' },
+      { t: 'tun',  q: 'L', r: 'pos', e: 't prepended; closed by n + g of "gula"' },
+      { t: 'gu',   q: 'S', r: 'open', e: 'open, short u' },
+      { t: 'la',   q: 'S', r: 'open', e: 'open, short a' },
+      { t: 'cam',  q: 'L', r: 'pos', e: 'closed by m + p' },
+      { t: 'pum',  q: 'L', r: 'final', e: 'final anceps marked long' }
+    ],
+    feet: [[0,1,2],[3,4,5],[6,7,8],[9,10,11],[12,13,14],[15,16]],
+    pattern: 'DDDDDS',
+    caesura: 7,
+    elisions: [],
+    note: 'The famous "gallop" line — all five dactyls before the closing spondee imitate hoofbeats.'
+  },
+  {
+    id: 'ec_1_1',
+    source: 'Ec. 1.1',
+    text: 'Tītyre, tū patulae recubāns sub tegmine fāgī',
+    syls: [
+      { t: 'Tī', q: 'L', r: 'nat', e: 'long ī by nature' },
+      { t: 'ty', q: 'S', r: 'open', e: 'open, short y' },
+      { t: 're', q: 'S', r: 'open', e: 'open, short e' },
+      { t: 'tū', q: 'L', r: 'nat', e: 'long ū by nature' },
+      { t: 'pa', q: 'S', r: 'open', e: 'open, short a' },
+      { t: 'tu', q: 'S', r: 'open', e: 'open, short u' },
+      { t: 'lae', q: 'L', r: 'diph', e: 'diphthong ae' },
+      { t: 're', q: 'S', r: 'open', e: 'open, short e' },
+      { t: 'cu', q: 'S', r: 'open', e: 'open, short u' },
+      { t: 'bāns', q: 'L', r: 'nat', e: 'long ā; also closed by n + s' },
+      { t: 'sub', q: 'L', r: 'pos', e: 'closed by b + t of "tegmine"' },
+      { t: 'teg', q: 'L', r: 'pos', e: 'closed by g + m' },
+      { t: 'mi', q: 'S', r: 'open', e: 'open, short i' },
+      { t: 'ne', q: 'S', r: 'open', e: 'open, short e' },
+      { t: 'fā', q: 'L', r: 'nat', e: 'long ā by nature' },
+      { t: 'gī', q: 'L', r: 'nat', e: 'long ī; final anceps marked long' }
+    ],
+    feet: [[0,1,2],[3,4,5],[6,7,8],[9,10],[11,12,13],[14,15]],
+    pattern: 'DDDSDS',
+    caesura: 7,
+    elisions: []
+  }
+];
+
+/* Rule definitions */
+const RULES = {
+  'nat':   { name: 'Long by Nature',     short: 'Long by nature',     color: 'peri' },
+  'pos':   { name: 'Long by Position',   short: 'Long by position',   color: 'rose' },
+  'diph':  { name: 'Diphthong',          short: 'Diphthong',          color: 'lav' },
+  'open':  { name: 'Short Open Syllable',short: 'Short, open',        color: 'sage' },
+  'final': { name: 'Final Anceps',       short: 'Final (anceps)',     color: 'butter' }
+};
+
+const CAESURA_NAMES = {
+  3: 'trithemimeral',
+  5: 'penthemimeral',
+  6: 'feminine (in foot III)',
+  7: 'hephthemimeral',
+  9: 'hephthemimeral'
+};
+
+const TEACHER_PASSCODE = 'glossomathia';
+const STORAGE_KEY = 'glossomathia_scansion_v1';
+
+/* ==================== STATE & STORAGE ==================== */
+let state = {
+  view: 'home',
+  currentUser: null,
+  users: {},          /* { name: { stats: {l1:{correct,wrong,rules:{rule:{c,w}}}, l2:{...}, l3:{...}, l4:{...}}, seen: {lineId: count} } } */
+  customLines: [],    /* user-added lines (same shape as STARTER_LINES) */
+  /* Trainer-level transient state */
+  currentLine: null,
+  currentLevel: null,
+  currentExercise: null,
+  trainerScore: { correct: 0, wrong: 0 },
+  feedbackData: null,
+  /* Level 1 */
+  l1TargetSyl: null,
+  l1Answer: null,
+  /* Level 2 */
+  l2Marks: null,
+  /* Level 3 */
+  l3Syls: null,
+  l3Marks: null,
+  l3FootAnswer: null,
+  /* Level 4 */
+  l4Marks: null,
+  l4Caesura: null,
+  /* Teacher */
+  teacherAuth: false,
+  teacherTab: 'lines',
+  newLineDraft: null
+};
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const saved = JSON.parse(raw);
+      if (saved.users) state.users = saved.users;
+      if (saved.customLines) state.customLines = saved.customLines;
+      if (saved.currentUser) state.currentUser = saved.currentUser;
+    }
+  } catch (e) { console.warn('Storage load failed:', e); }
+}
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      users: state.users,
+      customLines: state.customLines,
+      currentUser: state.currentUser
+    }));
+  } catch (e) { console.warn('Storage save failed:', e); }
+}
+
+function getAllLines() {
+  return [...STARTER_LINES, ...state.customLines];
+}
+
+function ensureUser(name) {
+  if (!state.users[name]) {
+    state.users[name] = {
+      stats: {
+        l1: { correct: 0, wrong: 0, rules: {} },
+        l2: { correct: 0, wrong: 0 },
+        l3: { correct: 0, wrong: 0 },
+        l4: { correct: 0, wrong: 0 }
+      },
+      seen: {}
+    };
+  }
+}
+
+function recordResult(level, correct, ruleKey) {
+  if (!state.currentUser) return;
+  ensureUser(state.currentUser);
+  const u = state.users[state.currentUser];
+  const ls = u.stats['l' + level];
+  if (correct) ls.correct++; else ls.wrong++;
+  if (level === 1 && ruleKey) {
+    if (!ls.rules[ruleKey]) ls.rules[ruleKey] = { c: 0, w: 0 };
+    if (correct) ls.rules[ruleKey].c++; else ls.rules[ruleKey].w++;
+  }
+  saveState();
+}
+
+function getMastery(level) {
+  if (!state.currentUser || !state.users[state.currentUser]) return 0;
+  const ls = state.users[state.currentUser].stats['l' + level];
+  const total = ls.correct + ls.wrong;
+  if (total === 0) return 0;
+  return Math.round((ls.correct / total) * 100);
+}
+
+/* Pick a random line, with some preference for unseen */
+function pickLine(filter) {
+  const lines = getAllLines().filter(filter || (() => true));
+  if (lines.length === 0) return null;
+  const u = state.users[state.currentUser];
+  const seen = u ? u.seen : {};
+  /* Sort: unseen first, then by least-seen */
+  const sorted = [...lines].sort((a, b) => (seen[a.id] || 0) - (seen[b.id] || 0));
+  /* Pick randomly from the least-seen tier */
+  const minCount = seen[sorted[0].id] || 0;
+  const tier = sorted.filter(l => (seen[l.id] || 0) === minCount);
+  const pick = tier[Math.floor(Math.random() * tier.length)];
+  if (u) {
+    u.seen[pick.id] = (u.seen[pick.id] || 0) + 1;
+    saveState();
+  }
+  return pick;
+}
+
+/* ==================== RENDERING ==================== */
+const app = document.getElementById('app');
+
+function render() {
+  app.innerHTML = '';
+  const shell = el('div', 'app-shell');
+  shell.appendChild(renderBrandbar());
+
+  switch (state.view) {
+    case 'home':         shell.appendChild(renderHome()); break;
+    case 'levelSelect':  shell.appendChild(renderLevelSelect()); break;
+    case 'level1':       shell.appendChild(renderLevel1()); break;
+    case 'level2':       shell.appendChild(renderLevel2()); break;
+    case 'level3':       shell.appendChild(renderLevel3()); break;
+    case 'level4':       shell.appendChild(renderLevel4()); break;
+    case 'stats':        shell.appendChild(renderStats()); break;
+    case 'teacher':      shell.appendChild(renderTeacher()); break;
+    case 'rules':        shell.appendChild(renderRules()); break;
+  }
+
+  shell.appendChild(renderFootMark());
+  app.appendChild(shell);
+}
+
+function el(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text !== undefined) e.textContent = text;
+  return e;
+}
+
+function renderBrandbar() {
+  const bar = el('div', 'brandbar');
+  const mark = el('a', 'mark');
+  mark.textContent = 'Glossomathia';
+  mark.onclick = () => { state.view = 'home'; render(); };
+  bar.appendChild(mark);
+
+  const nav = el('nav');
+  if (state.currentUser) {
+    const chip = el('span', 'user-chip', '✦ ' + state.currentUser);
+    nav.appendChild(chip);
+    const lvl = el('a', '', 'TRAIN');
+    lvl.onclick = () => { state.view = 'levelSelect'; render(); };
+    nav.appendChild(lvl);
+    const stats = el('a', '', 'STATS');
+    stats.onclick = () => { state.view = 'stats'; render(); };
+    nav.appendChild(stats);
+  }
+  const rules = el('a', '', 'RULES');
+  rules.onclick = () => { state.view = 'rules'; render(); };
+  nav.appendChild(rules);
+  const teacher = el('a', '', 'TEACHER');
+  teacher.onclick = () => { state.view = 'teacher'; render(); };
+  nav.appendChild(teacher);
+  bar.appendChild(nav);
+
+  return bar;
+}
+
+function renderFootMark() {
+  const f = el('div', 'foot-mark');
+  f.innerHTML = 'CREATED BY <span class="gname">Glossomathia</span>';
+  return f;
+}
+
+/* ============ HOME ============ */
+function renderHome() {
+  const wrap = el('div');
+  const hero = el('div', 'hero');
+  const eyebrow = el('div', 'eyebrow', 'A SCANSION TRAINER · DACTYLIC HEXAMETER');
+  hero.appendChild(eyebrow);
+  const h1 = el('h1');
+  h1.innerHTML = 'Mark the line. <span class="amp">&</span><br><i>Hear</i> the meter.';
+  hero.appendChild(h1);
+  hero.appendChild(el('div', 'ornament', '❦   ❦   ❦'));
+  const sub = el('p', 'subtitle', 'Progressive training in the rules of Vergilian scansion. Choose a student to begin — progress saves on this device.');
+  hero.appendChild(sub);
+  wrap.appendChild(hero);
+
+  /* User selection */
+  const card = el('div', 'card');
+  card.appendChild(el('h2', '', 'WHO\'S TRAINING?'));
+
+  const userList = el('div', 'user-select');
+  const users = Object.keys(state.users);
+  if (users.length === 0) {
+    const empty = el('p');
+    empty.style.fontStyle = 'italic';
+    empty.style.color = 'var(--ink-soft)';
+    empty.textContent = 'No students yet. Add one below to get started.';
+    userList.appendChild(empty);
+  }
+  users.forEach(name => {
+    const pill = el('div', 'user-pill');
+    const n = el('span', 'name', name);
+    const ls = state.users[name].stats;
+    const total = ls.l1.correct + ls.l1.wrong + ls.l2.correct + ls.l2.wrong + ls.l3.correct + ls.l3.wrong + ls.l4.correct + ls.l4.wrong;
+    const stat = el('span', 'stat', total + ' EXERCISES');
+    pill.appendChild(n);
+    pill.appendChild(stat);
+    pill.onclick = () => {
+      state.currentUser = name;
+      saveState();
+      state.view = 'levelSelect';
+      render();
+    };
+    userList.appendChild(pill);
+  });
+
+  const addForm = el('div', 'add-user-form');
+  const input = el('input', 'input');
+  input.type = 'text';
+  input.placeholder = 'New student name...';
+  input.onkeydown = (e) => { if (e.key === 'Enter') addBtn.click(); };
+  const addBtn = el('button', 'btn primary', 'ADD');
+  addBtn.onclick = () => {
+    const name = input.value.trim();
+    if (!name) return;
+    ensureUser(name);
+    state.currentUser = name;
+    saveState();
+    state.view = 'levelSelect';
+    render();
+  };
+  addForm.appendChild(input);
+  addForm.appendChild(addBtn);
+  userList.appendChild(addForm);
+  card.appendChild(userList);
+  wrap.appendChild(card);
+
+  return wrap;
+}
+
+/* ============ LEVEL SELECT ============ */
+function renderLevelSelect() {
+  const wrap = el('div');
+  wrap.appendChild(el('h1', '', 'Choose your level'));
+  wrap.appendChild(el('p', 'subtitle', 'Each level builds on the last. The fourth-level full-line scan is the AP exam target.'));
+
+  const grid = el('div', 'level-grid');
+  const levels = [
+    { n: 1, cls: 'l1', lat: 'SYLLABA', title: 'The Syllable', desc: 'Decide whether a single highlighted syllable is long or short. Every rule lives here.' },
+    { n: 2, cls: 'l2', lat: 'SYNALOEPHĒ', title: 'The Elision', desc: 'Spot where word-boundaries collapse. -m + vowel, vowel + vowel, vowel + h-.' },
+    { n: 3, cls: 'l3', lat: 'PĒS', title: 'The Foot', desc: 'Mark three syllables yourself, then call the foot — dactyl or spondee.' },
+    { n: 4, cls: 'l4', lat: 'VERSUS', title: 'The Verse', desc: 'Full line: every syllable marked, plus the main caesura placed. The exam.' }
+  ];
+  levels.forEach(lv => {
+    const card = el('div', 'level-card ' + lv.cls);
+    card.appendChild(el('div', 'num', '0' + lv.n));
+    card.appendChild(el('div', 'lat', lv.lat));
+    card.appendChild(el('div', 'title', lv.title));
+    card.appendChild(el('div', 'desc', lv.desc));
+    const mastery = getMastery(lv.n);
+    const mWrap = el('div', 'mastery');
+    const mFill = el('div', 'mastery-fill');
+    mFill.style.width = mastery + '%';
+    mWrap.appendChild(mFill);
+    card.appendChild(mWrap);
+    card.appendChild(el('div', 'mastery-label', mastery + '% MASTERY'));
+    card.onclick = () => startLevel(lv.n);
+    grid.appendChild(card);
+  });
+  wrap.appendChild(grid);
+
+  return wrap;
+}
+
+function startLevel(n) {
+  state.trainerScore = { correct: 0, wrong: 0 };
+  state.currentLevel = n;
+  state.feedbackData = null;
+  switch (n) {
+    case 1: state.view = 'level1'; nextL1(); break;
+    case 2: state.view = 'level2'; nextL2(); break;
+    case 3: state.view = 'level3'; nextL3(); break;
+    case 4: state.view = 'level4'; nextL4(); break;
+  }
+}
+
+/* ============ TRAINER HEADER ============ */
+function trainerHeader(levelName) {
+  const h = el('div', 'trainer-header');
+  const m = el('div', 'meta', levelName.toUpperCase());
+  const s = el('div', 'score');
+  s.innerHTML = '<span class="correct">' + state.trainerScore.correct + '</span> / <span class="wrong">' + state.trainerScore.wrong + '</span>';
+  h.appendChild(m);
+  h.appendChild(s);
+  return h;
+}
+
+/* ============ LEVEL 1: SYLLABLE QUANTITY ============ */
+function nextL1() {
+  state.currentLine = pickLine();
+  if (!state.currentLine) return;
+  /* Pick a random syllable that has a "rule" worth teaching */
+  const idx = Math.floor(Math.random() * state.currentLine.syls.length);
+  state.l1TargetSyl = idx;
+  state.feedbackData = null;
+  render();
+}
+
+function renderLevel1() {
+  const wrap = el('div');
+  wrap.appendChild(trainerHeader('Level I · The Syllable'));
+  const line = state.currentLine;
+  if (!line) { wrap.appendChild(el('p', '', 'No lines available.')); return wrap; }
+
+  /* Source */
+  const display = el('div', 'line-display');
+  display.appendChild(el('div', 'line-source', line.source));
+  display.appendChild(el('div', 'original-text', line.text));
+  display.appendChild(el('div', 'syl-breakdown-label', 'BROKEN INTO METRICAL SYLLABLES:'));
+
+  /* Build syllable line with target highlighted */
+  const sLine = el('div', 'syl-line');
+  line.syls.forEach((s, i) => {
+    const span = el('span', 'syl');
+    span.textContent = s.t;
+    if (i === state.l1TargetSyl) span.classList.add('target');
+    sLine.appendChild(span);
+  });
+  display.appendChild(sLine);
+  wrap.appendChild(display);
+
+  if (!state.feedbackData) {
+    const q = el('div', 'cap-question');
+    q.innerHTML = 'Is the highlighted syllable <strong>long</strong> or <strong>short</strong>?';
+    wrap.appendChild(q);
+
+    const btns = el('div', 'quant-buttons');
+    const longBtn = el('button', 'quant-btn long');
+    longBtn.innerHTML = '<span class="glyph">–</span><span>LONG</span>';
+    longBtn.onclick = () => submitL1('L');
+    const shortBtn = el('button', 'quant-btn short');
+    shortBtn.innerHTML = '<span class="glyph">⏑</span><span>SHORT</span>';
+    shortBtn.onclick = () => submitL1('S');
+    btns.appendChild(longBtn);
+    btns.appendChild(shortBtn);
+    wrap.appendChild(btns);
+  } else {
+    wrap.appendChild(renderL1Feedback());
+  }
+
+  /* Footer controls */
+  const ctrl = el('div', 'btn-row');
+  ctrl.style.justifyContent = 'center';
+  const back = el('button', 'btn ghost', '← BACK');
+  back.onclick = () => { state.view = 'levelSelect'; render(); };
+  ctrl.appendChild(back);
+  if (state.feedbackData) {
+    const next = el('button', 'btn primary large', 'NEXT →');
+    next.onclick = () => nextL1();
+    ctrl.appendChild(next);
+  }
+  wrap.appendChild(ctrl);
+
+  return wrap;
+}
+
+function submitL1(answer) {
+  const syl = state.currentLine.syls[state.l1TargetSyl];
+  const correct = (answer === syl.q);
+  state.feedbackData = { correct, syl };
+  recordResult(1, correct, syl.r);
+  if (correct) state.trainerScore.correct++; else state.trainerScore.wrong++;
+  render();
+}
+
+function renderL1Feedback() {
+  const syl = state.feedbackData.syl;
+  const fb = el('div', 'feedback ' + (state.feedbackData.correct ? 'correct' : 'wrong'));
+  const verdict = el('div', 'verdict');
+  verdict.textContent = state.feedbackData.correct ? '✓ Correct' : '✗ Not quite';
+  fb.appendChild(verdict);
+  const txt = el('div');
+  const isLong = syl.q === 'L';
+  txt.innerHTML = '<strong style="font-family:\'Cormorant Garamond\',serif;font-style:italic;">' + syl.t + '</strong> is <strong>' +
+    (isLong ? 'long ( – )' : 'short ( ⏑ )') + '</strong>.';
+  fb.appendChild(txt);
+  if (syl.e) fb.appendChild(el('div', 'explanation', syl.e));
+  fb.appendChild(el('span', 'rule', RULES[syl.r] ? RULES[syl.r].short.toUpperCase() : syl.r.toUpperCase()));
+  return fb;
+}
+
+/* ============ LEVEL 2: ELISION SPOTTING ============ */
+function nextL2() {
+  /* Prefer lines with elisions */
+  let line = pickLine(l => l.elisions && l.elisions.length > 0);
+  if (!line) line = pickLine(); /* fallback */
+  state.currentLine = line;
+  state.l2Marks = {};
+  state.feedbackData = null;
+  render();
+}
+
+function renderLevel2() {
+  const wrap = el('div');
+  wrap.appendChild(trainerHeader('Level II · The Elision'));
+  const line = state.currentLine;
+  if (!line) return wrap;
+
+  const display = el('div', 'line-display');
+  display.appendChild(el('div', 'line-source', line.source));
+
+  /* Build line as words separated by gaps that can be clicked */
+  const words = parseWords(line.text);
+  const eLine = el('div', 'elision-line');
+  words.forEach((w, i) => {
+    const wSpan = el('span', 'elision-word', w);
+    eLine.appendChild(wSpan);
+    if (i < words.length - 1) {
+      const gap = el('span', 'elision-gap');
+      gap.dataset.idx = i;
+      if (state.l2Marks[i]) gap.classList.add('marked');
+      gap.onclick = () => {
+        if (state.feedbackData) return;
+        state.l2Marks[i] = !state.l2Marks[i];
+        render();
+      };
+      eLine.appendChild(gap);
+    }
+  });
+  display.appendChild(eLine);
+  wrap.appendChild(display);
+
+  if (!state.feedbackData) {
+    const q = el('div', 'cap-question');
+    q.innerHTML = 'Click each <strong>gap</strong> where an elision occurs.';
+    wrap.appendChild(q);
+
+    const ctrl = el('div', 'btn-row');
+    ctrl.style.justifyContent = 'center';
+    const submit = el('button', 'btn primary large', 'CHECK');
+    submit.onclick = submitL2;
+    ctrl.appendChild(submit);
+    wrap.appendChild(ctrl);
+  } else {
+    wrap.appendChild(renderL2Feedback());
+  }
+
+  const back = el('div', 'btn-row');
+  back.style.justifyContent = 'center';
+  const b = el('button', 'btn ghost', '← BACK');
+  b.onclick = () => { state.view = 'levelSelect'; render(); };
+  back.appendChild(b);
+  if (state.feedbackData) {
+    const next = el('button', 'btn primary large', 'NEXT →');
+    next.onclick = () => nextL2();
+    back.appendChild(next);
+  }
+  wrap.appendChild(back);
+
+  return wrap;
+}
+
+function parseWords(text) {
+  /* Split by spaces, preserving punctuation attached */
+  return text.split(/\s+/).filter(Boolean);
+}
+
+/* For each word-boundary gap, determine if elision should occur based on actual elisions in the line */
+function detectActualElisions(line) {
+  /* Use the line.elisions array to determine which gaps have elisions */
+  /* We need to find which word-boundary index in parseWords(line.text) corresponds to each elision */
+  const words = parseWords(line.text);
+  const elisionGaps = [];
+
+  /* Simple matching: parse the elision string like "regere-imperiō (...)" */
+  if (line.elisions && line.elisions.length > 0) {
+    line.elisions.forEach(eStr => {
+      /* Extract the two words from "wordA-wordB (note)" */
+      const match = eStr.match(/^([^\s-]+)-(\S+?)(?:\s|$)/);
+      if (match) {
+        const wA = stripPunct(match[1]);
+        const wB = stripPunct(match[2]);
+        for (let i = 0; i < words.length - 1; i++) {
+          if (stripPunct(words[i]) === wA && stripPunct(words[i + 1]) === wB) {
+            elisionGaps.push(i);
+            break;
+          }
+        }
+      }
+    });
+  }
+  return elisionGaps;
+}
+
+function stripPunct(w) {
+  return w.replace(/[.,;:!?]/g, '').toLowerCase();
+}
+
+function submitL2() {
+  const actual = detectActualElisions(state.currentLine);
+  const marked = Object.keys(state.l2Marks).filter(k => state.l2Marks[k]).map(Number);
+  /* Compare sets */
+  const correctSet = new Set(actual);
+  const markedSet = new Set(marked);
+  let allCorrect = correctSet.size === markedSet.size && actual.every(a => markedSet.has(a));
+  state.feedbackData = { correct: allCorrect, actual, marked };
+  recordResult(2, allCorrect);
+  if (allCorrect) state.trainerScore.correct++; else state.trainerScore.wrong++;
+  render();
+}
+
+function renderL2Feedback() {
+  const fb = el('div', 'feedback ' + (state.feedbackData.correct ? 'correct' : 'wrong'));
+  const verdict = el('div', 'verdict');
+  verdict.textContent = state.feedbackData.correct ? '✓ Correct' : '✗ Not quite';
+  fb.appendChild(verdict);
+
+  const elisions = state.currentLine.elisions || [];
+  if (elisions.length === 0) {
+    fb.appendChild(el('div', '', 'This line has no elisions.'));
+  } else {
+    const intro = el('div');
+    intro.innerHTML = '<strong>Elision' + (elisions.length > 1 ? 's' : '') + ' in this line:</strong>';
+    fb.appendChild(intro);
+    const ul = el('ul');
+    ul.style.margin = '8px 0 0 18px';
+    ul.style.paddingLeft = '6px';
+    elisions.forEach(e => {
+      const li = el('li', '', e);
+      li.style.fontStyle = 'italic';
+      ul.appendChild(li);
+    });
+    fb.appendChild(ul);
+  }
+  return fb;
+}
+
+/* ============ LEVEL 3: MARK A FOOT ============ */
+function nextL3() {
+  state.currentLine = pickLine();
+  if (!state.currentLine) return;
+  /* Pick a random foot from the line */
+  const feet = state.currentLine.feet;
+  const fIdx = Math.floor(Math.random() * feet.length);
+  state.l3FootIdx = fIdx;
+  state.l3Syls = feet[fIdx].map(i => state.currentLine.syls[i]);
+  state.l3Marks = state.l3Syls.map(() => null);
+  state.l3FootAnswer = null;
+  state.feedbackData = null;
+  render();
+}
+
+function renderLevel3() {
+  const wrap = el('div');
+  wrap.appendChild(trainerHeader('Level III · The Foot'));
+  const line = state.currentLine;
+  if (!line) return wrap;
+
+  const display = el('div', 'line-display');
+  display.appendChild(el('div', 'line-source', line.source + ' · foot ' + romanize(state.l3FootIdx + 1)));
+  display.appendChild(el('div', 'original-text', line.text));
+  display.appendChild(el('div', 'syl-breakdown-label', 'METRICAL SYLLABLES (TARGET FOOT HIGHLIGHTED):'));
+
+  /* Show full line with target foot highlighted */
+  const sLine = el('div', 'syl-line');
+  const footSyls = line.feet[state.l3FootIdx];
+  line.syls.forEach((s, i) => {
+    const idxInFoot = footSyls.indexOf(i);
+    if (idxInFoot >= 0) {
+      const span = el('span', 'syl');
+      span.style.padding = '6px 8px';
+      span.style.margin = '0 2px';
+      span.style.background = 'rgba(243,226,168,0.45)';
+      span.style.borderRadius = '4px';
+      span.style.fontSize = '24px';
+      span.style.fontWeight = '600';
+      span.textContent = s.t;
+      if (state.l3Marks[idxInFoot]) {
+        const mark = el('span', 'quant-mark ' + state.l3Marks[idxInFoot]);
+        mark.textContent = state.l3Marks[idxInFoot] === 'L' ? '–' : '⏑';
+        const wrap2 = el('span');
+        wrap2.style.display = 'inline-flex';
+        wrap2.style.flexDirection = 'column';
+        wrap2.style.alignItems = 'center';
+        wrap2.style.padding = '0 4px';
+        wrap2.appendChild(mark);
+        wrap2.appendChild(span);
+        sLine.appendChild(wrap2);
+      } else {
+        sLine.appendChild(span);
+      }
+    } else {
+      const span = el('span', 'syl');
+      span.textContent = s.t;
+      span.style.opacity = '0.35';
+      sLine.appendChild(span);
+    }
+  });
+  display.appendChild(sLine);
+  wrap.appendChild(display);
+
+  if (!state.feedbackData) {
+    /* Two stages: mark each syllable, then identify foot */
+    const allMarked = state.l3Marks.every(m => m !== null);
+
+    if (!allMarked) {
+      const idx = state.l3Marks.findIndex(m => m === null);
+      const sTarget = state.l3Syls[idx];
+      const q = el('div', 'cap-question');
+      q.innerHTML = 'Mark syllable <strong>' + (idx + 1) + ' of ' + state.l3Syls.length + '</strong>: is <em>' + sTarget.t + '</em> long or short?';
+      wrap.appendChild(q);
+      const btns = el('div', 'quant-buttons');
+      const lBtn = el('button', 'quant-btn long');
+      lBtn.innerHTML = '<span class="glyph">–</span><span>LONG</span>';
+      lBtn.onclick = () => { state.l3Marks[idx] = 'L'; render(); };
+      const sBtn = el('button', 'quant-btn short');
+      sBtn.innerHTML = '<span class="glyph">⏑</span><span>SHORT</span>';
+      sBtn.onclick = () => { state.l3Marks[idx] = 'S'; render(); };
+      btns.appendChild(lBtn);
+      btns.appendChild(sBtn);
+      wrap.appendChild(btns);
+    } else {
+      const q = el('div', 'cap-question');
+      q.innerHTML = 'Now name the foot. Is it a <strong>dactyl</strong> or a <strong>spondee</strong>?';
+      wrap.appendChild(q);
+      const btns = el('div', 'foot-buttons');
+      const dBtn = el('button', 'foot-btn');
+      dBtn.innerHTML = '<div class="pattern">– ⏑ ⏑</div><div class="name">DACTYL</div>';
+      dBtn.onclick = () => submitL3('D');
+      const sBtn = el('button', 'foot-btn');
+      sBtn.innerHTML = '<div class="pattern">– –</div><div class="name">SPONDEE</div>';
+      sBtn.onclick = () => submitL3('S');
+      btns.appendChild(dBtn);
+      btns.appendChild(sBtn);
+      wrap.appendChild(btns);
+    }
+  } else {
+    wrap.appendChild(renderL3Feedback());
+  }
+
+  const ctrl = el('div', 'btn-row');
+  ctrl.style.justifyContent = 'center';
+  const back = el('button', 'btn ghost', '← BACK');
+  back.onclick = () => { state.view = 'levelSelect'; render(); };
+  ctrl.appendChild(back);
+  if (state.feedbackData) {
+    const next = el('button', 'btn primary large', 'NEXT →');
+    next.onclick = () => nextL3();
+    ctrl.appendChild(next);
+  }
+  wrap.appendChild(ctrl);
+
+  return wrap;
+}
+
+function romanize(n) {
+  return ['I','II','III','IV','V','VI'][n-1] || String(n);
+}
+
+function submitL3(footAnswer) {
+  /* Compute correct foot type from actual quantities */
+  const correctType = state.l3Syls.length === 3 ? 'D' : 'S';
+  /* Also check student marked all syllables correctly */
+  const marksCorrect = state.l3Syls.every((s, i) => state.l3Marks[i] === s.q);
+  const footCorrect = footAnswer === correctType;
+  const allCorrect = marksCorrect && footCorrect;
+  state.l3FootAnswer = footAnswer;
+  state.feedbackData = { correct: allCorrect, marksCorrect, footCorrect, correctType, footAnswer };
+  recordResult(3, allCorrect);
+  if (allCorrect) state.trainerScore.correct++; else state.trainerScore.wrong++;
+  render();
+}
+
+function renderL3Feedback() {
+  const f = state.feedbackData;
+  const fb = el('div', 'feedback ' + (f.correct ? 'correct' : 'wrong'));
+  const verdict = el('div', 'verdict');
+  verdict.textContent = f.correct ? '✓ Perfect' : '✗ Not quite';
+  fb.appendChild(verdict);
+
+  /* Show correct quantities */
+  const corrLine = el('div');
+  corrLine.style.fontFamily = "'Cormorant Garamond', serif";
+  corrLine.style.fontSize = '22px';
+  corrLine.style.marginTop = '8px';
+  let html = 'The foot is a <strong>' + (f.correctType === 'D' ? 'dactyl' : 'spondee') + '</strong>: ';
+  state.l3Syls.forEach((s, i) => {
+    html += '<span style="color:' + (s.q === 'L' ? 'var(--peri-deep)' : 'var(--sage-deep)') + ';font-weight:700;margin:0 4px;">' + (s.q === 'L' ? '–' : '⏑') + '</span>';
+    html += '<em>' + s.t + '</em>';
+    if (i < state.l3Syls.length - 1) html += ' ';
+  });
+  corrLine.innerHTML = html;
+  fb.appendChild(corrLine);
+
+  if (!f.marksCorrect) {
+    const fix = el('div', 'explanation');
+    fix.style.marginTop = '8px';
+    const wrongOnes = state.l3Syls.filter((s, i) => state.l3Marks[i] !== s.q).map(s => s.t);
+    fix.textContent = 'Check: ' + wrongOnes.join(', ') + ' — see the rule for each.';
+    fb.appendChild(fix);
+  }
+  return fb;
+}
+
+/* ============ LEVEL 4: FULL LINE SCANSION ============ */
+function nextL4() {
+  state.currentLine = pickLine();
+  if (!state.currentLine) return;
+  state.l4Marks = state.currentLine.syls.map(() => null);
+  state.l4Caesura = null;
+  state.l4Phase = 'marks';  /* 'marks' or 'caesura' or 'done' */
+  state.feedbackData = null;
+  render();
+}
+
+function renderLevel4() {
+  const wrap = el('div');
+  wrap.appendChild(trainerHeader('Level IV · The Verse'));
+  const line = state.currentLine;
+  if (!line) return wrap;
+
+  const display = el('div', 'line-display');
+  display.appendChild(el('div', 'line-source', line.source));
+  display.appendChild(el('div', 'original-text', line.text));
+  display.appendChild(el('div', 'syl-breakdown-label', 'MARK EACH SYLLABLE — CLICK TO CYCLE LONG / SHORT / BLANK'));
+
+  /* Clickable syllables with possible caesura slots between */
+  const cLine = el('div', 'caesura-line');
+  line.syls.forEach((s, i) => {
+    const block = el('span', 'syl-block');
+    const mark = el('span', 'quant-mark ' + (state.l4Marks[i] || ''));
+    mark.textContent = state.l4Marks[i] === 'L' ? '–' : (state.l4Marks[i] === 'S' ? '⏑' : ' ');
+    if (state.l4Marks[i]) {
+      mark.style.color = state.l4Marks[i] === 'L' ? 'var(--peri-deep)' : 'var(--sage-deep)';
+    } else {
+      mark.style.color = 'transparent';
+    }
+    block.appendChild(mark);
+    const syl = el('span', 'syl', s.t);
+    syl.style.padding = '4px 8px';
+    syl.style.cursor = state.l4Phase === 'marks' ? 'pointer' : 'default';
+    if (state.l4Marks[i]) {
+      syl.style.background = state.l4Marks[i] === 'L' ? 'rgba(198,210,236,0.25)' : 'rgba(200,220,196,0.25)';
+      syl.style.borderRadius = '3px';
+    }
+    if (state.l4Phase === 'marks') {
+      syl.onclick = () => {
+        const cur = state.l4Marks[i];
+        state.l4Marks[i] = cur === 'L' ? 'S' : (cur === 'S' ? null : 'L');
+        render();
+      };
+    }
+    block.appendChild(syl);
+    cLine.appendChild(block);
+
+    /* Caesura slot between syllables */
+    if (i < line.syls.length - 1 && state.l4Phase === 'caesura') {
+      const slot = el('span', 'caesura-slot');
+      if (state.l4Caesura === i + 1) slot.classList.add('selected');
+      slot.onclick = () => { state.l4Caesura = i + 1; render(); };
+      cLine.appendChild(slot);
+    }
+  });
+  display.appendChild(cLine);
+  wrap.appendChild(display);
+
+  if (!state.feedbackData) {
+    if (state.l4Phase === 'marks') {
+      const allMarked = state.l4Marks.every(m => m !== null);
+      const q = el('div', 'cap-question');
+      q.innerHTML = 'Click each syllable to mark <strong>long</strong> ( – ) or <strong>short</strong> ( ⏑ ). Click again to cycle.';
+      wrap.appendChild(q);
+      const ctrl = el('div', 'btn-row');
+      ctrl.style.justifyContent = 'center';
+      if (allMarked) {
+        const next = el('button', 'btn primary large', 'NEXT: PLACE CAESURA');
+        next.onclick = () => { state.l4Phase = 'caesura'; render(); };
+        ctrl.appendChild(next);
+      } else {
+        const note = el('p');
+        note.style.textAlign = 'center';
+        note.style.fontStyle = 'italic';
+        note.style.color = 'var(--ink-mute)';
+        const remaining = state.l4Marks.filter(m => m === null).length;
+        note.textContent = remaining + ' syllables remaining';
+        ctrl.appendChild(note);
+      }
+      wrap.appendChild(ctrl);
+    } else if (state.l4Phase === 'caesura') {
+      const q = el('div', 'cap-question');
+      q.innerHTML = 'Now click the <strong>gap</strong> where the main caesura falls.';
+      wrap.appendChild(q);
+      const ctrl = el('div', 'btn-row');
+      ctrl.style.justifyContent = 'center';
+      const submit = el('button', 'btn primary large', 'CHECK SCANSION');
+      submit.disabled = state.l4Caesura === null;
+      if (state.l4Caesura === null) {
+        submit.style.opacity = '0.5';
+        submit.style.cursor = 'not-allowed';
+      }
+      submit.onclick = submitL4;
+      ctrl.appendChild(submit);
+      const back = el('button', 'btn ghost', '← REMARK SYLLABLES');
+      back.onclick = () => { state.l4Phase = 'marks'; render(); };
+      ctrl.appendChild(back);
+      wrap.appendChild(ctrl);
+    }
+  } else {
+    wrap.appendChild(renderL4Feedback());
+  }
+
+  const ctrl = el('div', 'btn-row');
+  ctrl.style.justifyContent = 'center';
+  const back = el('button', 'btn ghost', '← BACK');
+  back.onclick = () => { state.view = 'levelSelect'; render(); };
+  ctrl.appendChild(back);
+  if (state.feedbackData) {
+    const next = el('button', 'btn primary large', 'NEXT →');
+    next.onclick = () => nextL4();
+    ctrl.appendChild(next);
+  }
+  wrap.appendChild(ctrl);
+
+  return wrap;
+}
+
+function submitL4() {
+  const line = state.currentLine;
+  const sylsCorrect = line.syls.every((s, i) => state.l4Marks[i] === s.q);
+  const caesuraCorrect = state.l4Caesura === line.caesura;
+  const allCorrect = sylsCorrect && caesuraCorrect;
+  const wrongSyls = [];
+  line.syls.forEach((s, i) => {
+    if (state.l4Marks[i] !== s.q) wrongSyls.push({ idx: i, syl: s, marked: state.l4Marks[i] });
+  });
+  state.feedbackData = { correct: allCorrect, sylsCorrect, caesuraCorrect, wrongSyls };
+  recordResult(4, allCorrect);
+  if (allCorrect) state.trainerScore.correct++; else state.trainerScore.wrong++;
+  render();
+}
+
+function renderL4Feedback() {
+  const f = state.feedbackData;
+  const line = state.currentLine;
+  const fb = el('div', 'feedback ' + (f.correct ? 'correct' : 'wrong'));
+  const verdict = el('div', 'verdict');
+  verdict.textContent = f.correct ? '✓ Perfect scansion' : (f.sylsCorrect ? '✗ Quantities right, caesura off' : '✗ Some quantities off');
+  fb.appendChild(verdict);
+
+  /* Show correct line */
+  const correctLine = el('div');
+  correctLine.style.marginTop = '10px';
+  correctLine.style.fontSize = '22px';
+  correctLine.style.lineHeight = '2';
+  correctLine.style.fontFamily = "'EB Garamond', serif";
+  correctLine.style.fontStyle = 'italic';
+  let html = '<strong style="font-family:\'Cormorant SC\',serif;font-size:11px;letter-spacing:0.18em;color:var(--ink-soft);">CORRECT SCANSION:</strong><br>';
+  line.syls.forEach((s, i) => {
+    const color = s.q === 'L' ? 'var(--peri-deep)' : 'var(--sage-deep)';
+    const sym = s.q === 'L' ? '–' : '⏑';
+    html += '<span style="display:inline-flex;flex-direction:column;align-items:center;padding:0 3px;">';
+    html += '<span style="color:' + color + ';font-family:\'Cormorant Garamond\',serif;font-weight:700;font-size:20px;line-height:1;">' + sym + '</span>';
+    html += '<span>' + s.t + '</span></span>';
+    if (i === line.caesura - 1) html += '<span style="color:var(--rose-deep);font-weight:700;font-size:24px;margin:0 6px;">‖</span>';
+  });
+  html += '<br><span style="font-family:\'Cormorant SC\',serif;font-size:11px;letter-spacing:0.18em;color:var(--ink-soft);">PATTERN: ' + line.pattern + ' &nbsp; · &nbsp; CAESURA: ' + (CAESURA_NAMES[line.caesura] || 'after syllable ' + line.caesura).toUpperCase() + '</span>';
+  if (line.note) {
+    html += '<br><em style="font-size:15px;color:var(--ink-soft);">' + line.note + '</em>';
+  }
+  correctLine.innerHTML = html;
+  fb.appendChild(correctLine);
+
+  if (f.wrongSyls.length > 0) {
+    const det = el('div');
+    det.style.marginTop = '12px';
+    det.style.fontSize = '15px';
+    const ul = el('ul');
+    ul.style.margin = '4px 0 0 18px';
+    f.wrongSyls.slice(0, 5).forEach(w => {
+      const li = el('li');
+      li.innerHTML = '<em>' + w.syl.t + '</em> is <strong>' + (w.syl.q === 'L' ? 'long' : 'short') + '</strong> — ' + (w.syl.e || RULES[w.syl.r].name);
+      li.style.fontSize = '15px';
+      li.style.marginBottom = '4px';
+      ul.appendChild(li);
+    });
+    det.appendChild(ul);
+    fb.appendChild(det);
+  }
+  return fb;
+}
+
+/* ============ STATS ============ */
+function renderStats() {
+  const wrap = el('div');
+  wrap.appendChild(el('h1', '', state.currentUser ? state.currentUser + '\'s progress' : 'Progress'));
+  if (!state.currentUser) {
+    wrap.appendChild(el('p', 'subtitle', 'Pick a student first.'));
+    return wrap;
+  }
+  const u = state.users[state.currentUser];
+  if (!u) return wrap;
+
+  /* Overall stats */
+  const allLevels = [1,2,3,4];
+  let totalC = 0, totalW = 0;
+  allLevels.forEach(l => { totalC += u.stats['l'+l].correct; totalW += u.stats['l'+l].wrong; });
+  const acc = totalC + totalW > 0 ? Math.round((totalC / (totalC + totalW)) * 100) : 0;
+
+  const grid = el('div', 'stat-grid');
+  grid.appendChild(statBlock(totalC + totalW, 'EXERCISES'));
+  grid.appendChild(statBlock(totalC, 'CORRECT', 'sage'));
+  grid.appendChild(statBlock(totalW, 'WRONG', 'rose'));
+  grid.appendChild(statBlock(acc + '%', 'ACCURACY', 'lav'));
+  wrap.appendChild(grid);
+
+  /* Per-level */
+  const lvlCard = el('div', 'card');
+  lvlCard.appendChild(el('h2', '', 'BY LEVEL'));
+  allLevels.forEach(l => {
+    const ls = u.stats['l' + l];
+    const total = ls.correct + ls.wrong;
+    const pct = total > 0 ? Math.round((ls.correct / total) * 100) : 0;
+    const row = el('div', 'rule-stat-row');
+    const lname = ['', 'I · Syllable', 'II · Elision', 'III · Foot', 'IV · Verse'][l];
+    row.appendChild(el('div', 'rname', lname));
+    const bar = el('div', 'rbar');
+    const fill = el('div', 'rbar-fill');
+    fill.style.width = pct + '%';
+    bar.appendChild(fill);
+    row.appendChild(bar);
+    row.appendChild(el('div', 'rnum', ls.correct + '/' + total + (total > 0 ? ' (' + pct + '%)' : '')));
+    lvlCard.appendChild(row);
+  });
+  wrap.appendChild(lvlCard);
+
+  /* Per-rule (level 1) */
+  const ruleCard = el('div', 'card sage');
+  ruleCard.appendChild(el('h2', '', 'BY RULE (LEVEL I)'));
+  const rules = u.stats.l1.rules || {};
+  if (Object.keys(rules).length === 0) {
+    ruleCard.appendChild(el('p', '', 'Practice the Syllable level to see rule-by-rule stats.'));
+  } else {
+    Object.entries(rules).forEach(([r, st]) => {
+      const total = st.c + st.w;
+      const pct = total > 0 ? Math.round((st.c / total) * 100) : 0;
+      const row = el('div', 'rule-stat-row');
+      row.appendChild(el('div', 'rname', RULES[r] ? RULES[r].name.toUpperCase() : r.toUpperCase()));
+      const bar = el('div', 'rbar');
+      const fill = el('div', 'rbar-fill');
+      fill.style.width = pct + '%';
+      bar.appendChild(fill);
+      row.appendChild(bar);
+      row.appendChild(el('div', 'rnum', st.c + '/' + total + ' (' + pct + '%)'));
+      ruleCard.appendChild(row);
+    });
+  }
+  wrap.appendChild(ruleCard);
+
+  /* Lines seen */
+  const seenCard = el('div', 'card lav');
+  seenCard.appendChild(el('h2', '', 'LINES PRACTICED'));
+  const seenEntries = Object.entries(u.seen || {}).sort((a, b) => b[1] - a[1]);
+  if (seenEntries.length === 0) {
+    seenCard.appendChild(el('p', '', 'No lines yet — start training!'));
+  } else {
+    seenEntries.forEach(([id, count]) => {
+      const line = getAllLines().find(l => l.id === id);
+      if (!line) return;
+      const row = el('div');
+      row.style.display = 'flex';
+      row.style.justifyContent = 'space-between';
+      row.style.padding = '6px 0';
+      row.style.borderBottom = '1px dotted var(--rule)';
+      const left = el('span');
+      left.innerHTML = '<span style="font-family:\'Cormorant SC\',serif;font-size:11px;letter-spacing:0.18em;color:var(--ink-mute);">' + line.source + '</span> &nbsp; <em>' + line.text.substring(0, 50) + (line.text.length > 50 ? '…' : '') + '</em>';
+      const right = el('span', '', count + 'x');
+      right.style.fontFamily = "'Cormorant Garamond', serif";
+      right.style.fontStyle = 'italic';
+      right.style.color = 'var(--lav-deep)';
+      row.appendChild(left);
+      row.appendChild(right);
+      seenCard.appendChild(row);
+    });
+  }
+  wrap.appendChild(seenCard);
+
+  return wrap;
+}
+
+function statBlock(num, lbl, cls) {
+  const b = el('div', 'stat-block' + (cls ? ' ' + cls : ''));
+  b.appendChild(el('div', 'num', String(num)));
+  b.appendChild(el('div', 'lbl', lbl));
+  return b;
+}
+
+/* ============ RULES REFERENCE ============ */
+function renderRules() {
+  const wrap = el('div');
+  wrap.appendChild(el('h1', '', 'Rules of scansion'));
+  wrap.appendChild(el('p', 'subtitle', 'The condensed reference. For the full handout, see the AP Latin & Scansion Rules document.'));
+
+  const sections = [
+    { cls: 'peri', title: 'LONG BY NATURE', body: 'A syllable is long by nature if its vowel is inherently long. These are learned from the lexicon or recognized by morphology — ablative endings (-ā, -ō), genitive plurals (-ārum, -ōrum), perfect endings (-āvī, -ēvī, -īvī), and the like. The macron is a fact about the word, not the meter.' },
+    { cls: 'peri', title: 'DIPHTHONGS', body: 'ae, au, oe, ei, eu, ui — always long. Two vowels pronounced as one syllable.' },
+    { cls: 'peri', title: 'LONG BEFORE NS / NF / NX / GN', body: 'The vowel preceding these clusters is lengthened: cōnsul, īnfēlīx, magnus, rēgnum.' },
+    { cls: 'rose', title: 'LONG BY POSITION', body: 'A syllable is long by position when its vowel is followed by two or more consonants (whether within a single word or across a word boundary). The vowel itself remains short in pronunciation; only the syllable is long.' },
+    { cls: 'rose', title: 'DOUBLE CONSONANTS', body: 'x = c+s and z = d+s/z+d each count as two consonants. Consonantal i between vowels (maior = mai-ior) also doubles.' },
+    { cls: 'rose', title: 'RESYLLABIFICATION TRAP', body: 'A single consonant between vowels (even across a word boundary) goes with the FOLLOWING syllable, leaving the previous open and short. This is why primus ab oris resyllabifies as pri-mu-sa-bō-rīs.' },
+    { cls: 'sage', title: 'MUTA CUM LIQUIDA', body: 'A mute consonant (p, b, t, d, c, g) followed by a liquid (l, r) is COMMON — the preceding syllable may scan either short or long, at the poet\'s discretion. Only within a word, not across boundaries.' },
+    { cls: 'peach', title: 'STRANGE LETTERS', body: 'h never counts as a consonant for position. qu counts as one consonant. gu/su before a vowel often count as one. Consonantal v counts as one consonant.' },
+    { cls: 'lav', title: 'ELISION (SYNALOEPHA)', body: 'Word-end vowel/diphthong + word-start vowel → first vowel elides. Vowel/diphthong + h-vowel → first vowel elides. -m + vowel → -m and vowel both elide. -m + h-vowel → -m and vowel both elide.' },
+    { cls: 'butter', title: 'HIATUS & SYNIZESIS', body: 'Hiatus: occasional non-elision for archaism or emphasis, rare in Vergil. Synizesis: two vowels within one word pronounced as one syllable (deinde, dehinc, huic, cui).' },
+    { cls: 'rose', title: 'FINAL SYLLABLE', body: 'The last syllable of a hexameter line is anceps — long or short by nature, but scanned long to complete the closing spondee.' }
+  ];
+
+  sections.forEach(s => {
+    const c = el('div', 'card ' + s.cls);
+    c.appendChild(el('h3', '', s.title));
+    c.appendChild(el('p', '', s.body));
+    wrap.appendChild(c);
+  });
+
+  return wrap;
+}
+
+/* ============ TEACHER MODE ============ */
+function renderTeacher() {
+  const wrap = el('div');
+  if (!state.teacherAuth) {
+    wrap.appendChild(el('h1', '', 'Teacher mode'));
+    wrap.appendChild(el('p', 'subtitle', 'Restricted area. Enter the passcode to add lines and view all student progress.'));
+    const card = el('div', 'card');
+    card.appendChild(el('label', '', 'PASSCODE'));
+    const input = el('input', 'input');
+    input.type = 'password';
+    input.placeholder = '...';
+    input.onkeydown = (e) => { if (e.key === 'Enter') tryBtn.click(); };
+    card.appendChild(input);
+    const err = el('p');
+    err.style.color = 'var(--rose-deep)';
+    err.style.fontSize = '14px';
+    err.style.fontStyle = 'italic';
+    err.style.marginTop = '8px';
+    card.appendChild(err);
+    const tryBtn = el('button', 'btn primary large', 'ENTER');
+    tryBtn.style.marginTop = '14px';
+    tryBtn.onclick = () => {
+      if (input.value.trim().toLowerCase() === TEACHER_PASSCODE) {
+        state.teacherAuth = true;
+        render();
+      } else {
+        err.textContent = 'Wrong passcode.';
+      }
+    };
+    card.appendChild(tryBtn);
+    wrap.appendChild(card);
+    return wrap;
+  }
+
+  wrap.appendChild(el('h1', '', 'Teacher mode'));
+  /* Tab nav */
+  const tabs = el('div', 'btn-row');
+  tabs.style.borderBottom = '1px solid var(--rule)';
+  tabs.style.paddingBottom = '10px';
+  tabs.style.marginBottom = '20px';
+  const mkTab = (key, lbl) => {
+    const t = el('button', 'btn' + (state.teacherTab === key ? ' primary' : ' ghost'), lbl);
+    t.onclick = () => { state.teacherTab = key; render(); };
+    return t;
+  };
+  tabs.appendChild(mkTab('lines', 'LINES'));
+  tabs.appendChild(mkTab('add', 'ADD LINE'));
+  tabs.appendChild(mkTab('students', 'STUDENTS'));
+  tabs.appendChild(mkTab('signout', 'SIGN OUT'));
+  wrap.appendChild(tabs);
+
+  if (state.teacherTab === 'signout') {
+    state.teacherAuth = false;
+    state.teacherTab = 'lines';
+    state.view = 'home';
+    render();
+    return wrap;
+  }
+
+  if (state.teacherTab === 'lines') {
+    wrap.appendChild(renderTeacherLines());
+  } else if (state.teacherTab === 'add') {
+    wrap.appendChild(renderAddLine());
+  } else if (state.teacherTab === 'students') {
+    wrap.appendChild(renderTeacherStudents());
+  }
+
+  return wrap;
+}
+
+function renderTeacherLines() {
+  const wrap = el('div');
+  wrap.appendChild(el('h2', '', 'LINE BANK (' + getAllLines().length + ')'));
+  const list = el('div', 'line-list');
+  STARTER_LINES.forEach(line => list.appendChild(lineRow(line, true)));
+  state.customLines.forEach(line => list.appendChild(lineRow(line, false)));
+  wrap.appendChild(list);
+  return wrap;
+}
+
+function lineRow(line, isStarter) {
+  const r = el('div', 'line-row' + (isStarter ? ' starter' : ''));
+  if (isStarter) {
+    const badge = el('span', 'badge', 'STARTER');
+    r.appendChild(badge);
+  }
+  r.appendChild(el('span', 'src', line.source));
+  r.appendChild(el('span', 'ltext', line.text));
+  r.appendChild(el('span', 'pat', line.pattern));
+  if (!isStarter) {
+    const del = el('button');
+    del.style.background = 'none';
+    del.style.border = 'none';
+    del.style.color = 'var(--rose-deep)';
+    del.style.cursor = 'pointer';
+    del.style.fontFamily = "'Cormorant SC', serif";
+    del.style.fontSize = '11px';
+    del.style.letterSpacing = '0.18em';
+    del.textContent = 'DELETE';
+    del.onclick = () => {
+      if (confirm('Delete line "' + line.source + '"?')) {
+        state.customLines = state.customLines.filter(l => l.id !== line.id);
+        saveState();
+        render();
+      }
+    };
+    r.appendChild(del);
+  }
+  return r;
+}
+
+function renderAddLine() {
+  const wrap = el('div');
+  wrap.appendChild(el('h2', '', 'ADD A NEW LINE'));
+  wrap.appendChild(el('p', 'subtitle', 'Enter a Vergilian line and mark every syllable yourself. The line becomes immediately available to all students on this device.'));
+
+  if (!state.newLineDraft) {
+    state.newLineDraft = {
+      source: '',
+      text: '',
+      syls: [],
+      caesura: null,
+      pattern: '',
+      elisions: [],
+      note: ''
+    };
+  }
+  const d = state.newLineDraft;
+
+  const form = el('div', 'add-line-form');
+  form.appendChild(el('label', '', 'SOURCE (e.g. Aen. 4.165)'));
+  const srcIn = el('input', 'input');
+  srcIn.type = 'text';
+  srcIn.value = d.source;
+  srcIn.oninput = (e) => { d.source = e.target.value; };
+  form.appendChild(srcIn);
+
+  form.appendChild(el('label', '', 'LATIN TEXT (with macrons, e.g. Arma virumque canō)'));
+  const txtIn = el('input', 'input');
+  txtIn.type = 'text';
+  txtIn.value = d.text;
+  txtIn.oninput = (e) => { d.text = e.target.value; };
+  form.appendChild(txtIn);
+
+  form.appendChild(el('label', '', 'SYLLABLES (mark each long – or short ⏑)'));
+  const sylEd = el('div', 'syl-editor');
+  d.syls.forEach((s, i) => {
+    const wrap2 = el('div', 'syl-input');
+    const t = document.createElement('input');
+    t.type = 'text';
+    t.value = s.t;
+    t.placeholder = 'syl';
+    t.oninput = (ev) => { s.t = ev.target.value; };
+    wrap2.appendChild(t);
+    const toggle = el('div', 'q-toggle');
+    const longB = el('button', s.q === 'L' ? 'on' : '');
+    longB.textContent = '–';
+    longB.onclick = () => { s.q = 'L'; render(); };
+    const shortB = el('button', s.q === 'S' ? 'on' : '');
+    shortB.textContent = '⏑';
+    shortB.onclick = () => { s.q = 'S'; render(); };
+    toggle.appendChild(longB);
+    toggle.appendChild(shortB);
+    wrap2.appendChild(toggle);
+    const del = el('button', 'del-syl', '×');
+    del.onclick = () => {
+      d.syls.splice(i, 1);
+      render();
+    };
+    wrap2.appendChild(del);
+    sylEd.appendChild(wrap2);
+  });
+  /* Add-syllable button */
+  const addSyl = el('button', 'btn ghost', '+ ADD SYLLABLE');
+  addSyl.style.alignSelf = 'flex-end';
+  addSyl.onclick = () => {
+    d.syls.push({ t: '', q: 'S', r: 'open', e: '' });
+    render();
+  };
+  sylEd.appendChild(addSyl);
+  form.appendChild(sylEd);
+
+  form.appendChild(el('label', '', 'CAESURA (syllable number AFTER which the main caesura falls)'));
+  const caesIn = el('input', 'input');
+  caesIn.type = 'number';
+  caesIn.min = 1;
+  caesIn.max = d.syls.length;
+  caesIn.value = d.caesura || '';
+  caesIn.oninput = (e) => { d.caesura = parseInt(e.target.value) || null; };
+  form.appendChild(caesIn);
+
+  form.appendChild(el('label', '', 'FOOT PATTERN (e.g. DDSSDS — 6 letters, D for dactyl, S for spondee)'));
+  const patIn = el('input', 'input');
+  patIn.type = 'text';
+  patIn.value = d.pattern;
+  patIn.placeholder = 'DDSSDS';
+  patIn.maxLength = 6;
+  patIn.style.textTransform = 'uppercase';
+  patIn.oninput = (e) => { d.pattern = e.target.value.toUpperCase(); };
+  form.appendChild(patIn);
+
+  form.appendChild(el('label', '', 'ELISIONS (one per line, format: wordA-wordB, e.g. "regere-imperiō")'));
+  const elIn = el('textarea', 'textarea');
+  elIn.value = (d.elisions || []).join('\n');
+  elIn.rows = 2;
+  elIn.placeholder = 'leave blank if no elisions';
+  elIn.oninput = (e) => { d.elisions = e.target.value.split('\n').map(s => s.trim()).filter(Boolean); };
+  form.appendChild(elIn);
+
+  form.appendChild(el('label', '', 'NOTE (optional teaching note)'));
+  const noteIn = el('input', 'input');
+  noteIn.type = 'text';
+  noteIn.value = d.note;
+  noteIn.oninput = (e) => { d.note = e.target.value; };
+  form.appendChild(noteIn);
+
+  /* Validation summary */
+  const valWrap = el('div');
+  valWrap.style.marginTop = '14px';
+  valWrap.style.padding = '12px';
+  valWrap.style.background = 'rgba(255,255,255,0.5)';
+  valWrap.style.border = '1px dashed var(--rule)';
+  valWrap.style.borderRadius = '4px';
+  valWrap.style.fontSize = '14px';
+  valWrap.style.color = 'var(--ink-soft)';
+  const issues = validateDraft(d);
+  if (issues.length === 0) {
+    valWrap.innerHTML = '<strong style="color:var(--sage-deep);">✓ Ready to save.</strong>';
+  } else {
+    valWrap.innerHTML = '<strong>Before saving:</strong><br>' + issues.map(i => '· ' + i).join('<br>');
+  }
+  form.appendChild(valWrap);
+
+  /* Save button */
+  const saveBtn = el('button', 'btn primary large', 'SAVE LINE');
+  saveBtn.style.marginTop = '14px';
+  if (issues.length > 0) {
+    saveBtn.style.opacity = '0.5';
+    saveBtn.style.cursor = 'not-allowed';
+  }
+  saveBtn.onclick = () => {
+    if (issues.length > 0) return;
+    /* Auto-compute feet from pattern */
+    const feet = computeFeetFromPattern(d.pattern, d.syls);
+    const newLine = {
+      id: 'custom_' + Date.now(),
+      source: d.source,
+      text: d.text,
+      syls: d.syls.map(s => ({ ...s, r: s.r || (s.q === 'L' ? 'pos' : 'open') })),
+      feet: feet,
+      pattern: d.pattern,
+      caesura: d.caesura,
+      elisions: d.elisions || [],
+      note: d.note || undefined
+    };
+    state.customLines.push(newLine);
+    saveState();
+    state.newLineDraft = null;
+    state.teacherTab = 'lines';
+    render();
+  };
+  form.appendChild(saveBtn);
+
+  const clearBtn = el('button', 'btn ghost', 'CLEAR FORM');
+  clearBtn.style.marginLeft = '8px';
+  clearBtn.onclick = () => {
+    state.newLineDraft = null;
+    render();
+  };
+  form.appendChild(clearBtn);
+
+  wrap.appendChild(form);
+  return wrap;
+}
+
+function validateDraft(d) {
+  const issues = [];
+  if (!d.source) issues.push('Add a source (e.g. "Aen. 4.165").');
+  if (!d.text) issues.push('Enter the Latin text.');
+  if (d.syls.length === 0) issues.push('Add at least one syllable.');
+  if (d.syls.some(s => !s.t)) issues.push('Every syllable needs text.');
+  if (!d.pattern || !/^[DS]{6}$/.test(d.pattern)) issues.push('Pattern must be exactly 6 letters of D or S (e.g. DDSSDS).');
+  if (d.pattern && /^[DS]{6}$/.test(d.pattern)) {
+    const expectedSyls = [...d.pattern].reduce((sum, c) => sum + (c === 'D' ? 3 : 2), 0);
+    if (d.syls.length !== expectedSyls) {
+      issues.push('Pattern ' + d.pattern + ' expects ' + expectedSyls + ' syllables; you have ' + d.syls.length + '.');
+    }
+  }
+  if (!d.caesura) issues.push('Set the caesura position.');
+  if (d.caesura && (d.caesura < 1 || d.caesura > d.syls.length - 1)) {
+    issues.push('Caesura must be between 1 and ' + (d.syls.length - 1) + '.');
+  }
+  return issues;
+}
+
+function computeFeetFromPattern(pattern, syls) {
+  const feet = [];
+  let idx = 0;
+  for (const c of pattern) {
+    const n = c === 'D' ? 3 : 2;
+    feet.push(Array.from({ length: n }, (_, i) => idx + i));
+    idx += n;
+  }
+  return feet;
+}
+
+function renderTeacherStudents() {
+  const wrap = el('div');
+  wrap.appendChild(el('h2', '', 'ALL STUDENTS'));
+  const names = Object.keys(state.users);
+  if (names.length === 0) {
+    wrap.appendChild(el('p', '', 'No students yet.'));
+    return wrap;
+  }
+  names.forEach(name => {
+    const u = state.users[name];
+    const c = el('div', 'card');
+    c.appendChild(el('h3', '', name));
+    const grid = el('div', 'stat-grid');
+    let totalC = 0, totalW = 0;
+    [1,2,3,4].forEach(l => { totalC += u.stats['l'+l].correct; totalW += u.stats['l'+l].wrong; });
+    const acc = totalC + totalW > 0 ? Math.round((totalC / (totalC + totalW)) * 100) : 0;
+    grid.appendChild(statBlock(totalC + totalW, 'EXERCISES'));
+    grid.appendChild(statBlock(totalC, 'CORRECT', 'sage'));
+    grid.appendChild(statBlock(totalW, 'WRONG', 'rose'));
+    grid.appendChild(statBlock(acc + '%', 'ACCURACY', 'lav'));
+    c.appendChild(grid);
+    /* Mini level breakdown */
+    const lvls = el('div');
+    lvls.style.marginTop = '14px';
+    [1,2,3,4].forEach(l => {
+      const ls = u.stats['l' + l];
+      const total = ls.correct + ls.wrong;
+      const pct = total > 0 ? Math.round((ls.correct / total) * 100) : 0;
+      const row = el('div', 'rule-stat-row');
+      row.appendChild(el('div', 'rname', 'LEVEL ' + romanize(l)));
+      const bar = el('div', 'rbar');
+      const fill = el('div', 'rbar-fill');
+      fill.style.width = pct + '%';
+      bar.appendChild(fill);
+      row.appendChild(bar);
+      row.appendChild(el('div', 'rnum', ls.correct + '/' + total + (total > 0 ? ' (' + pct + '%)' : '')));
+      lvls.appendChild(row);
+    });
+    c.appendChild(lvls);
+    /* Delete student */
+    const del = el('button', 'btn ghost');
+    del.style.marginTop = '12px';
+    del.style.color = 'var(--rose-deep)';
+    del.textContent = '× DELETE STUDENT';
+    del.onclick = () => {
+      if (confirm('Delete all progress for ' + name + '?')) {
+        delete state.users[name];
+        if (state.currentUser === name) state.currentUser = null;
+        saveState();
+        render();
+      }
+    };
+    c.appendChild(del);
+    wrap.appendChild(c);
+  });
+  return wrap;
+}
+
+/* ==================== INIT ==================== */
+loadState();
+render();
+</script>
+</body>
+</html>
