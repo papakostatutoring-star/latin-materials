@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Effugium — The Four Doors</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg1:#fbf4ee; --bg2:#f3e8ef; --bg3:#eef0f5;
+    --ink:#5e4b56; --ink-soft:#8a7681; --line:#e7d9df;
+    --gold:#c9a35a; --gold-soft:#e7d3a6;
+    /* one pastel per conjugation */
+    --c1:#e8b4c0; --c1-bg:#fbe7ec; --c1-ink:#b1607a;   /* 1st -āre  blush */
+    --c2:#a9cdb6; --c2-bg:#e6f1ea; --c2-ink:#5f8c72;   /* 2nd -ēre  sage  */
+    --c3:#a9c2e0; --c3-bg:#e6eef7; --c3-ink:#5d80aa;   /* 3rd -ere  sky   */
+    --c4:#c5b4e0; --c4-bg:#ece4f6; --c4-ink:#8067ad;   /* 4th -īre  lilac */
+    --card:#fffdfb;
+    --shadow:0 18px 40px -22px rgba(94,75,86,.45);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    font-family:"Nunito",system-ui,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(120% 90% at 15% 0%, var(--bg1) 0%, transparent 55%),
+      radial-gradient(120% 90% at 90% 10%, var(--bg2) 0%, transparent 50%),
+      linear-gradient(160deg,var(--bg1),var(--bg3));
+    background-attachment:fixed;
+    min-height:100%;
+    display:flex; align-items:center; justify-content:center;
+    padding:26px 16px;
+  }
+  .stage{width:100%; max-width:680px}
+  .brand{
+    text-align:center; letter-spacing:.42em; text-transform:uppercase;
+    font-size:.66rem; color:var(--ink-soft); font-weight:700; margin-bottom:14px;
+  }
+  .panel{
+    background:var(--card); border:1px solid var(--line); border-radius:26px;
+    box-shadow:var(--shadow); padding:38px 34px; position:relative; overflow:hidden;
+  }
+  h1{
+    font-family:"Cormorant Garamond",serif; font-weight:600;
+    font-size:clamp(2.4rem,7vw,3.5rem); line-height:1; margin:.1em 0 .15em;
+    letter-spacing:.01em; text-align:center;
+  }
+  .sub{
+    font-family:"Cormorant Garamond",serif; font-style:italic;
+    text-align:center; color:var(--ink-soft); font-size:1.25rem; margin-bottom:22px;
+  }
+  p.lede{color:var(--ink-soft); line-height:1.6; text-align:center; font-size:1rem}
+  /* the four doors graphic on the start screen */
+  .doors{display:flex; gap:12px; justify-content:center; margin:26px 0 30px}
+  .door{
+    width:62px; height:104px; border-radius:8px 8px 4px 4px; position:relative;
+    border:2px solid rgba(94,75,86,.12);
+    display:flex; align-items:flex-end; justify-content:center; padding-bottom:8px;
+    font-family:"Cormorant Garamond",serif; font-size:1.5rem; color:#fff;
+  }
+  .door::before{content:""; position:absolute; right:9px; top:48px; width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,.85)}
+  .door.d1{background:linear-gradient(160deg,var(--c1),#dd97a8)}
+  .door.d2{background:linear-gradient(160deg,var(--c2),#8fbd9f)}
+  .door.d3{background:linear-gradient(160deg,var(--c3),#8fb0d6)}
+  .door.d4{background:linear-gradient(160deg,var(--c4),#ab95d2)}
+  .btn{
+    display:block; width:100%; border:none; cursor:pointer;
+    font-family:"Nunito",sans-serif; font-weight:800; font-size:1.05rem;
+    color:#fff; background:linear-gradient(160deg,#7d6470,#5e4b56);
+    padding:16px; border-radius:14px; margin-top:10px;
+    box-shadow:0 10px 22px -12px rgba(94,75,86,.7); transition:transform .12s, box-shadow .12s;
+  }
+  .btn:hover{transform:translateY(-2px)}
+  .btn:active{transform:translateY(0)}
+  .btn.gold{background:linear-gradient(160deg,var(--gold-soft),var(--gold)); color:#5b481f}
+
+  /* in-game header */
+  .topbar{display:flex; align-items:center; justify-content:space-between; margin-bottom:6px}
+  .room-name{font-family:"Cormorant Garamond",serif; font-size:1.6rem; font-weight:600}
+  .keys{display:flex; gap:7px; font-size:1.15rem; filter:grayscale(1) opacity(.35)}
+  .keys span{transition:.3s}
+  .keys span.have{filter:none; opacity:1; transform:scale(1.05)}
+  .progress-wrap{height:8px; background:var(--line); border-radius:99px; overflow:hidden; margin:14px 0 24px}
+  .progress{height:100%; width:0; border-radius:99px; background:linear-gradient(90deg,var(--gold-soft),var(--gold)); transition:width .35s}
+  .count{font-size:.8rem; color:var(--ink-soft); font-weight:700; letter-spacing:.04em}
+
+  /* verb card */
+  .verb-card{
+    text-align:center; padding:30px 18px 24px; border-radius:20px;
+    background:linear-gradient(180deg,#fff,#fdf8f4); border:1px solid var(--line);
+    margin-bottom:18px; min-height:150px;
+    display:flex; flex-direction:column; justify-content:center;
+  }
+  .verb{font-family:"Cormorant Garamond",serif; font-size:clamp(2rem,8vw,3rem); font-weight:600; line-height:1.05}
+  .gloss{color:var(--ink-soft); font-style:italic; font-family:"Cormorant Garamond",serif; font-size:1.4rem; margin-top:6px}
+  .feedback{min-height:24px; margin-top:14px; font-weight:700; font-size:.95rem; opacity:0; transition:opacity .2s}
+  .feedback.show{opacity:1}
+  .feedback.ok{color:var(--c2-ink)}
+  .feedback.no{color:var(--c1-ink)}
+
+  .choices{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+  .choice{
+    cursor:pointer; border:2px solid transparent; border-radius:14px; padding:14px 12px;
+    font-family:"Nunito",sans-serif; font-weight:800; text-align:left;
+    display:flex; align-items:center; gap:12px; transition:transform .1s, box-shadow .15s;
+  }
+  .choice .num{
+    font-family:"Cormorant Garamond",serif; font-size:1.7rem; font-weight:600;
+    width:34px; height:34px; border-radius:9px; display:grid; place-items:center; color:#fff; flex:none;
+  }
+  .choice .lab{display:flex; flex-direction:column; line-height:1.1}
+  .choice .lab b{font-size:1rem}
+  .choice .lab small{font-weight:600; opacity:.7; font-family:"Cormorant Garamond",serif; font-style:italic; font-size:1rem}
+  .choice.k1{background:var(--c1-bg); color:var(--c1-ink)} .choice.k1 .num{background:var(--c1)}
+  .choice.k2{background:var(--c2-bg); color:var(--c2-ink)} .choice.k2 .num{background:var(--c2)}
+  .choice.k3{background:var(--c3-bg); color:var(--c3-ink)} .choice.k3 .num{background:var(--c3)}
+  .choice.k4{background:var(--c4-bg); color:var(--c4-ink)} .choice.k4 .num{background:var(--c4)}
+  .choice:not(:disabled):hover{transform:translateY(-2px); box-shadow:0 8px 18px -10px rgba(94,75,86,.5)}
+  .choice:disabled{cursor:default}
+  .choice.correct{outline:3px solid var(--c2-ink); outline-offset:1px}
+  .choice.wrong{outline:3px solid var(--c1-ink); outline-offset:1px; opacity:.85}
+  .choice.dim{opacity:.4}
+  .hint{text-align:center; font-size:.78rem; color:var(--ink-soft); margin-top:16px; letter-spacing:.03em}
+
+  /* results */
+  .result-head{font-family:"Cormorant Garamond",serif; font-size:clamp(2.6rem,9vw,4rem); font-weight:600; text-align:center; line-height:1; margin:.1em 0}
+  .score-big{text-align:center; margin:18px 0}
+  .score-big .n{font-family:"Cormorant Garamond",serif; font-size:4rem; font-weight:600; line-height:1}
+  .score-big .of{color:var(--ink-soft); font-size:1.1rem; font-weight:700}
+  .pct-bar{height:14px; border-radius:99px; background:var(--line); overflow:hidden; margin:6px 0 4px; position:relative}
+  .pct-fill{height:100%; width:0; border-radius:99px; transition:width 1s cubic-bezier(.2,.8,.2,1)}
+  .pct-mark{position:absolute; top:-4px; bottom:-4px; left:75%; width:2px; background:var(--ink); opacity:.55}
+  .pct-legend{display:flex; justify-content:space-between; font-size:.72rem; color:var(--ink-soft); font-weight:700; margin-bottom:22px}
+  .breakdown{display:grid; gap:10px; margin:18px 0 8px}
+  .brow{display:flex; align-items:center; gap:12px}
+  .brow .tag{width:96px; font-weight:800; font-size:.85rem; flex:none}
+  .brow .track{flex:1; height:12px; border-radius:99px; background:var(--line); overflow:hidden}
+  .brow .bar{height:100%; border-radius:99px; transition:width .8s}
+  .brow .val{width:48px; text-align:right; font-weight:800; font-size:.85rem; font-variant-numeric:tabular-nums}
+  .b1 .bar{background:var(--c1)} .b2 .bar{background:var(--c2)} .b3 .bar{background:var(--c3)} .b4 .bar{background:var(--c4)}
+  .b1 .tag{color:var(--c1-ink)} .b2 .tag{color:var(--c2-ink)} .b3 .tag{color:var(--c3-ink)} .b4 .tag{color:var(--c4-ink)}
+  .verdict{text-align:center; color:var(--ink-soft); line-height:1.6; margin:10px 4px 4px}
+
+  /* gate animation */
+  .gate{display:flex; justify-content:center; gap:4px; margin:6px 0 18px; perspective:700px}
+  .leaf{width:54px; height:120px; border-radius:6px; background:linear-gradient(160deg,var(--gold-soft),var(--gold));
+        border:2px solid rgba(91,72,31,.25); transition:transform 1.1s cubic-bezier(.5,0,.2,1); transform-origin:left center}
+  .leaf.right{transform-origin:right center}
+  .gate.open .leaf{transform:rotateY(-78deg)}
+  .gate.open .leaf.right{transform:rotateY(78deg)}
+
+  /* confetti */
+  #confetti{position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:50}
+  .conf{position:absolute; top:-14px; width:9px; height:14px; border-radius:2px; animation:fall linear forwards}
+  @keyframes fall{to{transform:translateY(108vh) rotate(540deg); opacity:.9}}
+
+  .hidden{display:none !important}
+  .fade{animation:fade .35s ease}
+  @keyframes fade{from{opacity:0; transform:translateY(6px)}to{opacity:1; transform:none}}
+  @media (max-width:480px){
+    .panel{padding:28px 20px}
+    .choices{grid-template-columns:1fr}
+    .door{width:52px;height:90px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none !important; transition:none !important}
+  }
+</style>
+</head>
+<body>
+<div id="confetti" aria-hidden="true"></div>
+<div class="stage">
+  <div class="brand">Glossomathia · Play — Listen — Learn</div>
+
+  <!-- START -->
+  <div class="panel" id="screen-start">
+    <h1>Effugium</h1>
+    <div class="sub">The Villa of the Four Doors</div>
+    <div class="doors">
+      <div class="door d1">I</div><div class="door d2">II</div>
+      <div class="door d3">III</div><div class="door d4">IV</div>
+    </div>
+    <p class="lede">You are locked inside a Roman villa with four chambers. At every lock a verb waits — name its <b>conjugation</b> and the tumbler clicks. One hundred verbs stand between you and the open air.<br><br>Reach the gate with <b>75 verbs correct</b> and it swings wide. Fall short and the bolt holds.</p>
+    <button class="btn" id="enter">Intrā — Enter the villa</button>
+    <p class="hint">Tip: you can answer with the keys 1 · 2 · 3 · 4</p>
+  </div>
+
+  <!-- GAME -->
+  <div class="panel hidden" id="screen-game">
+    <div class="topbar">
+      <div class="room-name" id="roomName">Ātrium</div>
+      <div class="keys" id="keys">
+        <span data-k="0">🗝️</span><span data-k="1">🗝️</span>
+        <span data-k="2">🗝️</span><span data-k="3">🗝️</span>
+      </div>
+    </div>
+    <div class="progress-wrap"><div class="progress" id="prog"></div></div>
+    <div class="count" id="count">Verb 1 of 100</div>
+
+    <div class="verb-card" id="verbCard">
+      <div class="verb" id="verb"></div>
+      <div class="gloss" id="gloss"></div>
+      <div class="feedback" id="feedback"></div>
+    </div>
+
+    <div class="choices" id="choices">
+      <button class="choice k1" data-conj="1"><span class="num">I</span><span class="lab"><b>First</b><small>-āre</small></span></button>
+      <button class="choice k2" data-conj="2"><span class="num">II</span><span class="lab"><b>Second</b><small>-ēre</small></span></button>
+      <button class="choice k3" data-conj="3"><span class="num">III</span><span class="lab"><b>Third</b><small>-ere</small></span></button>
+      <button class="choice k4" data-conj="4"><span class="num">IV</span><span class="lab"><b>Fourth</b><small>-īre</small></span></button>
+    </div>
+    <p class="hint" id="ghint">Look to the infinitive — its vowel tells the tale.</p>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="panel hidden" id="screen-result">
+    <div class="gate" id="gate"><div class="leaf"></div><div class="leaf right"></div></div>
+    <div class="result-head" id="resultHead"></div>
+    <div class="score-big">
+      <div><span class="n" id="scoreN">0</span><span class="of" id="scoreOf"> / 100</span></div>
+    </div>
+    <div class="pct-bar"><div class="pct-fill" id="pctFill"></div><div class="pct-mark"></div></div>
+    <div class="pct-legend"><span>0%</span><span>escape line · 75%</span><span>100%</span></div>
+    <div class="breakdown" id="breakdown"></div>
+    <p class="verdict" id="verdict"></p>
+    <button class="btn gold" id="again">Try the doors again</button>
+  </div>
+</div>
+
+<script>
+/* ---------- verb bank: 25 per conjugation, 100 total ---------- */
+const BANK = {
+  1:[["amō, amāre","to love"],["portō, portāre","to carry"],["laudō, laudāre","to praise"],
+     ["vocō, vocāre","to call"],["parō, parāre","to prepare"],["spectō, spectāre","to watch"],
+     ["clāmō, clāmāre","to shout"],["labōrō, labōrāre","to work"],["pugnō, pugnāre","to fight"],
+     ["nārrō, nārrāre","to tell"],["servō, servāre","to guard"],["necō, necāre","to kill"],
+     ["habitō, habitāre","to dwell"],["ambulō, ambulāre","to walk"],["cantō, cantāre","to sing"],
+     ["cēnō, cēnāre","to dine"],["cōgitō, cōgitāre","to think"],["cūrō, cūrāre","to care for"],
+     ["festīnō, festīnāre","to hurry"],["mōnstrō, mōnstrāre","to show"],["nāvigō, nāvigāre","to sail"],
+     ["oppugnō, oppugnāre","to attack"],["rogō, rogāre","to ask"],["superō, superāre","to overcome"],
+     ["temptō, temptāre","to try"]],
+  2:[["moneō, monēre","to warn"],["videō, vidēre","to see"],["habeō, habēre","to have"],
+     ["teneō, tenēre","to hold"],["terreō, terrēre","to frighten"],["dēleō, dēlēre","to destroy"],
+     ["iubeō, iubēre","to order"],["maneō, manēre","to remain"],["moveō, movēre","to move"],
+     ["dēbeō, dēbēre","to owe"],["doceō, docēre","to teach"],["timeō, timēre","to fear"],
+     ["respondeō, respondēre","to reply"],["sedeō, sedēre","to sit"],["rīdeō, rīdēre","to laugh"],
+     ["taceō, tacēre","to be silent"],["valeō, valēre","to be well"],["gaudeō, gaudēre","to rejoice"],
+     ["iaceō, iacēre","to lie down"],["noceō, nocēre","to harm"],["pāreō, pārēre","to obey"],
+     ["placeō, placēre","to please"],["studeō, studēre","to be eager"],["augeō, augēre","to increase"],
+     ["fleō, flēre","to weep"]],
+  3:[["regō, regere","to rule"],["dūcō, dūcere","to lead"],["mittō, mittere","to send"],
+     ["pōnō, pōnere","to place"],["scrībō, scrībere","to write"],["dīcō, dīcere","to say"],
+     ["agō, agere","to drive, do"],["legō, legere","to read"],["gerō, gerere","to wage"],
+     ["petō, petere","to seek"],["currō, currere","to run"],["vincō, vincere","to conquer"],
+     ["trahō, trahere","to drag"],["claudō, claudere","to close"],["crēdō, crēdere","to believe"],
+     ["discō, discere","to learn"],["emō, emere","to buy"],["ostendō, ostendere","to show"],
+     ["pellō, pellere","to drive off"],["quaerō, quaerere","to seek"],["relinquō, relinquere","to leave"],
+     ["surgō, surgere","to rise"],["tollō, tollere","to lift"],["vehō, vehere","to carry"],
+     ["vīvō, vīvere","to live"]],
+  4:[["audiō, audīre","to hear"],["veniō, venīre","to come"],["dormiō, dormīre","to sleep"],
+     ["sciō, scīre","to know"],["sentiō, sentīre","to feel"],["inveniō, invenīre","to find"],
+     ["mūniō, mūnīre","to fortify"],["aperiō, aperīre","to open"],["custōdiō, custōdīre","to guard"],
+     ["fīniō, fīnīre","to finish"],["impediō, impedīre","to hinder"],["nesciō, nescīre","to not know"],
+     ["pūniō, pūnīre","to punish"],["saliō, salīre","to leap"],["serviō, servīre","to serve"],
+     ["vinciō, vincīre","to bind"],["conveniō, convenīre","to assemble"],["perveniō, pervenīre","to arrive"],
+     ["reperiō, reperīre","to discover"],["hauriō, haurīre","to drain"],["vestiō, vestīre","to clothe"],
+     ["expediō, expedīre","to set free"],["sepeliō, sepelīre","to bury"],["erudiō, erudīre","to instruct"],
+     ["lēniō, lēnīre","to soothe"]]
+};
+const CONJ_NAME = {1:"first (-āre)",2:"second (-ēre)",3:"third (-ere)",4:"fourth (-īre)"};
+const ROOMS = ["Ātrium","Tablīnum","Triclīnium","Peristȳlium"];
+const TOTAL = 100, PASS = 75;
+
+/* build + shuffle deck */
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
+let deck=[];
+function buildDeck(){
+  deck=[];
+  for(const c of [1,2,3,4]) for(const [form,gloss] of BANK[c]) deck.push({conj:c,form,gloss});
+  shuffle(deck);
+}
+
+/* state */
+let idx=0, correct=0, per={1:[0,25],2:[0,25],3:[0,25],4:[0,25]}, locked=false;
+
+const $=id=>document.getElementById(id);
+const screens={start:$("screen-start"),game:$("screen-game"),result:$("screen-result")};
+function show(name){for(const k in screens)screens[k].classList.toggle("hidden",k!==name);}
+
+function startGame(){
+  buildDeck(); idx=0; correct=0; per={1:[0,25],2:[0,25],3:[0,25],4:[0,25]};
+  $("keys").querySelectorAll("span").forEach(s=>s.classList.remove("have"));
+  show("game"); render();
+}
+
+function render(){
+  locked=false;
+  const card=deck[idx];
+  const room=Math.floor(idx/25);
+  $("roomName").textContent=ROOMS[room];
+  $("count").textContent=`Verb ${idx+1} of ${TOTAL}`;
+  $("prog").style.width=(idx/TOTAL*100)+"%";
+  const v=$("verb"); v.textContent=card.form; v.classList.remove("fade"); void v.offsetWidth; v.classList.add("fade");
+  $("gloss").textContent=card.gloss;
+  const fb=$("feedback"); fb.className="feedback"; fb.textContent="";
+  document.querySelectorAll(".choice").forEach(b=>{
+    b.disabled=false; b.className="choice k"+b.dataset.conj;
+  });
+}
+
+function answer(choice){
+  if(locked) return; locked=true;
+  const card=deck[idx];
+  const right=card.conj;
+  per[right][0]+= (choice===right?1:0); // track per-conjugation hits
+  const fb=$("feedback");
+  const buttons=document.querySelectorAll(".choice");
+  buttons.forEach(b=>{
+    b.disabled=true;
+    const c=+b.dataset.conj;
+    if(c===right) b.classList.add("correct");
+    else if(c===choice) b.classList.add("wrong");
+    else b.classList.add("dim");
+  });
+  if(choice===right){
+    correct++;
+    fb.textContent="Rēctē! — the tumbler clicks."; fb.classList.add("show","ok");
+  }else{
+    fb.textContent=`It is the ${CONJ_NAME[right]} conjugation.`; fb.classList.add("show","no");
+  }
+  const delay = (choice===right)?780:1500;
+  advanceTimer=setTimeout(next,delay);
+}
+
+let advanceTimer=null;
+function next(){
+  clearTimeout(advanceTimer);
+  // award a key when a room (block of 25) is completed
+  const justFinished=Math.floor(idx/25);
+  idx++;
+  if(idx%25===0 && idx>0){
+    const span=$("keys").querySelector(`[data-k="${justFinished}"]`);
+    if(span) span.classList.add("have");
+  }
+  if(idx>=TOTAL){ finish(); return; }
+  render();
+}
+
+function finish(){
+  $("prog").style.width="100%";
+  const pct=Math.round(correct/TOTAL*100);
+  const passed=correct>=PASS;
+  $("scoreN").textContent=correct;
+  $("scoreOf").textContent=` / ${TOTAL}`;
+  $("resultHead").textContent= passed ? "Effūgistī!" : "Porta clausa manet";
+  $("resultHead").style.color = passed ? "var(--gold)" : "var(--ink)";
+
+  // per-conjugation breakdown
+  const bd=$("breakdown"); bd.innerHTML="";
+  const names={1:["First · -āre","b1"],2:["Second · -ēre","b2"],3:["Third · -ere","b3"],4:["Fourth · -īre","b4"]};
+  for(const c of [1,2,3,4]){
+    const [hit,tot]=per[c];
+    const row=document.createElement("div");
+    row.className="brow "+names[c][1];
+    row.innerHTML=`<div class="tag">${names[c][0]}</div>
+      <div class="track"><div class="bar" style="width:0"></div></div>
+      <div class="val">${hit}/${tot}</div>`;
+    bd.appendChild(row);
+    requestAnimationFrame(()=>{row.querySelector(".bar").style.width=(hit/tot*100)+"%";});
+  }
+
+  if(passed){
+    $("verdict").innerHTML=`You needed ${PASS} and you reached <b>${correct}</b> — that is ${pct}%. The bolt slides back, the great doors part, and you step into the light. <b>Vīcistī.</b>`;
+  }else{
+    const need=PASS-correct;
+    $("verdict").innerHTML=`You reached <b>${correct}</b> of ${TOTAL} (${pct}%). The gate needs ${PASS} — just <b>${need}</b> more. Look at the bars above: the shortest one is your next door. Walk it again.`;
+  }
+
+  show("result");
+  // animate the percentage bar + gate + confetti after paint
+  setTimeout(()=>{
+    const fill=$("pctFill");
+    fill.style.width=pct+"%";
+    fill.style.background = passed
+      ? "linear-gradient(90deg,var(--gold-soft),var(--gold))"
+      : "linear-gradient(90deg,var(--c1),#dd97a8)";
+    if(passed){ $("gate").classList.add("open"); burst(); }
+  },120);
+}
+
+/* pastel confetti for a win */
+function burst(){
+  const wrap=$("confetti");
+  const cols=["#eab4c0","#a9cdb6","#a9c2e0","#c5b4e0","#e7d3a6","#c9a35a"];
+  for(let i=0;i<120;i++){
+    const d=document.createElement("div");
+    d.className="conf";
+    d.style.left=Math.random()*100+"vw";
+    d.style.background=cols[i%cols.length];
+    d.style.animationDuration=(2.6+Math.random()*2.2)+"s";
+    d.style.animationDelay=(Math.random()*.6)+"s";
+    d.style.opacity=.85;
+    wrap.appendChild(d);
+    setTimeout(()=>d.remove(),5400);
+  }
+}
+
+/* events */
+$("enter").addEventListener("click",startGame);
+$("again").addEventListener("click",()=>{ $("confetti").innerHTML=""; $("gate").classList.remove("open"); startGame(); });
+document.querySelectorAll(".choice").forEach(b=>{
+  b.addEventListener("click",()=>answer(+b.dataset.conj));
+});
+document.addEventListener("keydown",e=>{
+  if(screens.game.classList.contains("hidden")) return;
+  if(["1","2","3","4"].includes(e.key)) answer(+e.key);
+  else if(e.key==="Enter"||e.key===" "){ if(locked) next(); }
+});
+</script>
+</body>
+</html>
