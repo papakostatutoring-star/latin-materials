@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figūrae · Latin Figures of Speech · Glossomathia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,600&family=Poppins:wght@400;500;600&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FCF6E8; --card:#ffffff; --ink:#3B3340; --plum:#5F4B66; --slate:#6E6A78;
+    --lav:#EEE9F2; --line:#E6DCC9;
+    --sound:#7AA6B9; --order:#8E7CC3; --rep:#6FAE84; --mean:#C98BB0; --gold:#E0A93A;
+    --good:#4E9E6A; --bad:#C56B6B;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--cream);color:var(--ink);font-family:'Nunito',sans-serif;
+    -webkit-font-smoothing:antialiased;line-height:1.5;min-height:100vh;}
+  .wrap{max-width:760px;margin:0 auto;padding:0 18px 80px;}
+
+  header{text-align:center;padding:34px 0 8px;}
+  .brand{font-family:'Poppins';font-size:.68rem;letter-spacing:.34em;text-transform:uppercase;
+    color:var(--order);font-weight:600;margin-bottom:10px;}
+  h1{font-family:'Cormorant Garamond',serif;font-weight:700;color:var(--plum);
+    font-size:clamp(2.2rem,6vw,3rem);line-height:1;}
+  h1 em{color:var(--gold);font-style:italic;}
+  .tag{font-family:'Nunito';color:var(--slate);font-size:.98rem;margin-top:8px;}
+
+  /* mastery */
+  .mastery{display:flex;align-items:center;justify-content:center;gap:10px;margin:16px 0 4px;
+    font-family:'Poppins';font-size:.78rem;color:var(--slate);}
+  .mbar{width:180px;height:7px;background:var(--lav);border-radius:99px;overflow:hidden;}
+  .mbar span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--order),var(--gold));
+    transition:width .5s;}
+
+  /* tabs */
+  .tabs{display:flex;gap:6px;background:#fff;border:1px solid var(--line);border-radius:99px;
+    padding:5px;margin:22px auto 6px;max-width:520px;box-shadow:0 8px 26px -20px rgba(95,75,102,.6);}
+  .tab{flex:1;font-family:'Poppins';font-size:.82rem;font-weight:500;color:var(--slate);
+    background:none;border:none;padding:9px 4px;border-radius:99px;cursor:pointer;transition:.2s;}
+  .tab.active{background:var(--plum);color:#fff;}
+  .tab:hover:not(.active){color:var(--plum);}
+
+  /* tier filter */
+  .tierbar{display:flex;gap:6px;justify-content:center;align-items:center;margin:12px auto 2px;
+    font-family:'Poppins';font-size:.74rem;}
+  .tierbar .tl{color:var(--slate);letter-spacing:.08em;text-transform:uppercase;font-size:.66rem;margin-right:2px;}
+  .tierbtn{font-family:'Poppins';font-size:.76rem;font-weight:500;color:var(--slate);background:#fff;
+    border:1px solid var(--line);border-radius:99px;padding:6px 15px;cursor:pointer;transition:.2s;}
+  .tierbtn.active{background:var(--gold);color:#fff;border-color:var(--gold);}
+  .tierbtn:hover:not(.active){border-color:var(--gold);color:var(--gold);}
+  .tier-badge{font-family:'Poppins';font-size:.6rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+    padding:3px 9px;border-radius:99px;border:1px solid;margin-left:8px;vertical-align:middle;}
+  .tier-badge.core{color:var(--rep);border-color:var(--rep);}
+  .tier-badge.advanced{color:var(--gold);border-color:var(--gold);}
+  .term-row{display:flex;align-items:center;flex-wrap:wrap;gap:2px;}
+
+  .panel{display:none;animation:fade .35s ease;}
+  .panel.on{display:block;}
+  @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+
+  /* ------- LEARN / flashcards ------- */
+  .deck-top{display:flex;align-items:center;justify-content:space-between;margin:20px 0 12px;
+    font-family:'Poppins';font-size:.8rem;color:var(--slate);}
+  .deck-top button{font-family:'Poppins';font-size:.78rem;color:var(--plum);background:#fff;
+    border:1px solid var(--line);border-radius:99px;padding:6px 14px;cursor:pointer;transition:.2s;}
+  .deck-top button:hover{border-color:var(--order);color:var(--order);}
+  .flip{perspective:1600px;cursor:pointer;}
+  .flip-inner{position:relative;transition:transform .55s;transform-style:preserve-3d;min-height:340px;}
+  .flip.flipped .flip-inner{transform:rotateY(180deg);}
+  .face{position:absolute;inset:0;backface-visibility:hidden;background:var(--card);
+    border:1px solid var(--line);border-radius:20px;padding:30px 28px;display:flex;flex-direction:column;
+    box-shadow:0 16px 40px -28px rgba(95,75,102,.6);}
+  .back{transform:rotateY(180deg);}
+  .cat-pill{align-self:flex-start;font-family:'Poppins';font-size:.66rem;font-weight:600;
+    letter-spacing:.1em;text-transform:uppercase;color:#fff;padding:4px 12px;border-radius:99px;margin-bottom:auto;}
+  .term{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:2.4rem;color:var(--plum);line-height:1;}
+  .greek{font-family:'Nunito';font-size:.86rem;color:var(--slate);font-style:italic;margin-top:4px;}
+  .latin{font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--ink);font-style:italic;
+    margin:22px 0 6px;line-height:1.35;}
+  .eng{font-size:.95rem;color:var(--slate);}
+  .src{font-family:'Poppins';font-size:.7rem;color:#b3a9bd;margin-top:8px;letter-spacing:.03em;}
+  .flip-hint{text-align:center;font-family:'Poppins';font-size:.72rem;color:#c3b9cd;margin-top:14px;}
+  .b-label{font-family:'Poppins';font-size:.66rem;font-weight:600;letter-spacing:.14em;
+    text-transform:uppercase;margin:14px 0 3px;}
+  .b-def{font-size:1.02rem;color:var(--ink);}
+  .b-spot{font-size:.94rem;color:var(--slate);}
+  .hook{background:var(--cream);border-left:3px solid var(--gold);border-radius:8px;padding:10px 14px;
+    margin-top:14px;font-size:.94rem;color:var(--plum);}
+  .hook b{font-family:'Poppins';font-weight:600;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--gold);display:block;margin-bottom:2px;}
+  .deck-nav{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;}
+  .arrow{flex:0 0 auto;width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:#fff;
+    font-size:1.2rem;color:var(--plum);cursor:pointer;transition:.2s;}
+  .arrow:hover{background:var(--plum);color:#fff;border-color:var(--plum);}
+  .known-btn{flex:1;font-family:'Poppins';font-size:.82rem;font-weight:500;padding:12px;border-radius:12px;
+    border:1px solid var(--rep);background:#fff;color:var(--rep);cursor:pointer;transition:.2s;}
+  .known-btn.is-known{background:var(--rep);color:#fff;}
+
+  /* ------- QUIZ ------- */
+  .quiz-head{display:flex;justify-content:space-between;align-items:center;margin:20px 0 14px;
+    font-family:'Poppins';font-size:.8rem;color:var(--slate);}
+  .score b{color:var(--plum);font-size:1rem;}
+  .streak{color:var(--gold);font-weight:600;}
+  .qcard{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:26px 24px;
+    box-shadow:0 16px 40px -30px rgba(95,75,102,.6);}
+  .qprompt-label{font-family:'Poppins';font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--order);font-weight:600;margin-bottom:10px;}
+  .qlatin{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.7rem;color:var(--plum);
+    line-height:1.35;}
+  .qeng{font-size:.9rem;color:var(--slate);margin-top:6px;}
+  .qdef{font-size:1.15rem;color:var(--ink);line-height:1.45;}
+  .opts{display:grid;gap:10px;margin-top:20px;}
+  .opt{font-family:'Nunito';font-size:1rem;font-weight:600;text-align:left;background:#fff;
+    border:1.5px solid var(--line);border-radius:12px;padding:13px 16px;cursor:pointer;transition:.15s;color:var(--ink);}
+  .opt:hover:not(:disabled){border-color:var(--order);transform:translateX(2px);}
+  .opt:disabled{cursor:default;}
+  .opt.correct{background:#EAF6EE;border-color:var(--good);color:var(--good);}
+  .opt.wrong{background:#FBECEC;border-color:var(--bad);color:var(--bad);}
+  .explain{margin-top:16px;padding:14px 16px;border-radius:12px;background:var(--cream);
+    border:1px solid var(--line);font-size:.94rem;color:var(--ink);display:none;}
+  .explain.on{display:block;}
+  .explain .ex-term{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:1.3rem;color:var(--plum);}
+  .explain .ex-hook{color:var(--plum);margin-top:6px;}
+  .next-btn{margin-top:16px;width:100%;font-family:'Poppins';font-weight:600;font-size:.92rem;color:#fff;
+    background:var(--plum);border:none;border-radius:12px;padding:14px;cursor:pointer;transition:.2s;display:none;}
+  .next-btn.on{display:block;}
+  .next-btn:hover{filter:brightness(1.1);}
+
+  /* ------- MATCH ------- */
+  .match-head{text-align:center;margin:20px 0 14px;font-family:'Poppins';font-size:.82rem;color:var(--slate);}
+  .match-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .mcol-label{font-family:'Poppins';font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--slate);text-align:center;margin-bottom:4px;font-weight:600;}
+  .mitem{font-family:'Nunito';font-weight:600;background:#fff;border:1.5px solid var(--line);border-radius:11px;
+    padding:12px 13px;cursor:pointer;transition:.15s;font-size:.92rem;}
+  .mitem.name{font-family:'Cormorant Garamond',serif;font-size:1.15rem;color:var(--plum);text-align:center;}
+  .mitem.def{font-size:.86rem;color:var(--ink);line-height:1.35;}
+  .mitem:hover:not(.matched){border-color:var(--order);}
+  .mitem.sel{border-color:var(--order);background:var(--lav);}
+  .mitem.matched{opacity:.35;pointer-events:none;border-style:dashed;}
+  .mitem.flash-bad{border-color:var(--bad);background:#FBECEC;}
+  .match-done{text-align:center;padding:30px;font-family:'Cormorant Garamond',serif;font-size:1.6rem;
+    color:var(--plum);display:none;}
+  .match-done.on{display:block;}
+  .replay{font-family:'Poppins';font-size:.84rem;font-weight:500;color:#fff;background:var(--gold);
+    border:none;border-radius:99px;padding:10px 24px;cursor:pointer;margin-top:14px;}
+
+  footer{text-align:center;margin-top:40px;font-family:'Poppins';font-size:.72rem;color:var(--slate);letter-spacing:.03em;}
+  footer span{color:var(--gold);}
+  @media(max-width:540px){
+    .match-grid{grid-template-columns:1fr;}
+    .term{font-size:2rem;}
+    .qlatin{font-size:1.4rem;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">Glossomathia · Latin</div>
+    <h1>Figūrae <em>Ōrātiōnis</em></h1>
+    <div class="tag">Figures of speech — learn them, spot them, remember them.</div>
+    <div class="mastery">
+      <span>Mastered</span>
+      <div class="mbar"><span id="mfill"></span></div>
+      <span id="mtext">0 / 30</span>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="learn">Learn</button>
+    <button class="tab" data-tab="spot">Spot it</button>
+    <button class="tab" data-tab="name">Name it</button>
+    <button class="tab" data-tab="match">Match</button>
+  </div>
+
+  <div class="tierbar">
+    <span class="tl">Set</span>
+    <button class="tierbtn active" data-tier="core">Core · 30</button>
+    <button class="tierbtn" data-tier="advanced">Advanced · 30</button>
+    <button class="tierbtn" data-tier="all">All · 60</button>
+  </div>
+
+  <!-- LEARN -->
+  <section class="panel on" id="learn">
+    <div class="deck-top">
+      <span id="deckPos">1 / 30</span>
+      <button id="shuffleBtn">↻ Shuffle</button>
+    </div>
+    <div class="flip" id="flip">
+      <div class="flip-inner">
+        <div class="face front">
+          <span class="cat-pill" id="fCat"></span>
+          <div class="term-row"><div class="term" id="fTerm"></div><span class="tier-badge" id="fTier"></span></div>
+          <div class="greek" id="fGreek"></div>
+          <div class="latin" id="fLatin"></div>
+          <div class="eng" id="fEng"></div>
+          <div class="src" id="fSrc"></div>
+          <div class="flip-hint">tap card to reveal ▸</div>
+        </div>
+        <div class="face back">
+          <span class="cat-pill" id="bCat"></span>
+          <div class="b-label" style="color:var(--order)">What it is</div>
+          <div class="b-def" id="bDef"></div>
+          <div class="b-label" style="color:var(--sound)">How to spot it</div>
+          <div class="b-spot" id="bSpot"></div>
+          <div class="hook"><b>Memory hook</b><span id="bHook"></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="deck-nav">
+      <button class="arrow" id="prev">‹</button>
+      <button class="known-btn" id="knownBtn">Mark as known</button>
+      <button class="arrow" id="next">›</button>
+    </div>
+  </section>
+
+  <!-- SPOT -->
+  <section class="panel" id="spot">
+    <div class="quiz-head">
+      <span class="score">Score <b id="spotScore">0</b> / <span id="spotTotal">0</span></span>
+      <span class="streak" id="spotStreak"></span>
+    </div>
+    <div class="qcard">
+      <div class="qprompt-label">Which device is this?</div>
+      <div class="qlatin" id="spotLatin"></div>
+      <div class="qeng" id="spotEng"></div>
+      <div class="opts" id="spotOpts"></div>
+      <div class="explain" id="spotExplain"></div>
+      <button class="next-btn" id="spotNext">Next ›</button>
+    </div>
+  </section>
+
+  <!-- NAME -->
+  <section class="panel" id="name">
+    <div class="quiz-head">
+      <span class="score">Score <b id="nameScore">0</b> / <span id="nameTotal">0</span></span>
+      <span class="streak" id="nameStreak"></span>
+    </div>
+    <div class="qcard">
+      <div class="qprompt-label">Name this figure of speech</div>
+      <div class="qdef" id="nameDef"></div>
+      <div class="opts" id="nameOpts"></div>
+      <div class="explain" id="nameExplain"></div>
+      <button class="next-btn" id="nameNext">Next ›</button>
+    </div>
+  </section>
+
+  <!-- MATCH -->
+  <section class="panel" id="match">
+    <div class="match-head">Tap a term, then its definition. Clear all six to win.</div>
+    <div class="match-grid" id="matchGrid"></div>
+    <div class="match-done" id="matchDone">
+      Optimē! <div style="font-family:'Nunito';font-size:.95rem;color:var(--slate);margin-top:6px;" id="matchTime"></div>
+      <button class="replay" id="matchReplay">New round</button>
+    </div>
+  </section>
+
+  <footer>Glossomathia · Play · Listen · Learn &nbsp;<span>❀</span>&nbsp; Diagnose → Pattern → Use it now</footer>
+</div>
+
+<script>
+const CATS = {
+  sound:{label:"Sound & Rhythm",color:"var(--sound)"},
+  order:{label:"Word Order",color:"var(--order)"},
+  rep:{label:"Repetition & Omission",color:"var(--rep)"},
+  mean:{label:"Meaning & Imagery",color:"var(--mean)"}
+};
+
+const DEVICES = [
+  {t:"Asyndeton",cat:"rep",gk:"Greek: 'not bound together'",
+   def:"Leaving out the conjunctions (and, but) — clauses are joined only by commas.",
+   spot:"A list or series with no 'et' / '-que', just commas. Feels fast and punchy.",
+   la:"Vēnī, vīdī, vīcī.",en:"I came, I saw, I conquered.",src:"Caesar",
+   hook:"A-syndeton = the 'AND' is Absent. Commas do the work the conjunctions used to."},
+  {t:"Polysyndeton",cat:"rep",gk:"Greek: 'many bound together'",
+   def:"Using more conjunctions than normal, one after another.",
+   spot:"Repeated et…et… or …-que…-que piling items up and slowing the pace.",
+   la:"multum ille et terrīs iactātus et altō.",en:"much buffeted both on land and on the deep.",src:"Vergil, Aeneid 1.3",
+   hook:"POLY = many. Many 'ands' = the opposite of asyndeton. It drags the rhythm out on purpose."},
+  {t:"Anaphora",cat:"rep",gk:"Greek: 'a carrying back'",
+   def:"Repeating the same word at the start of successive phrases or clauses.",
+   spot:"The same opening word begins line after line.",
+   la:"Nihil agis, nihil mōlīris, nihil cōgitās.",en:"You do nothing, you attempt nothing, you plan nothing.",src:"Cicero, In Catilinam",
+   hook:"Ana-phora = again at the front. Same word, again… and again… and again."},
+  {t:"Tricolon",cat:"rep",gk:"Greek: 'three limbs'",
+   def:"A series of three parallel words, phrases, or clauses (often growing in force).",
+   spot:"Exactly three matching elements in a row.",
+   la:"Vēnī, vīdī, vīcī.",en:"I came, I saw, I conquered.",src:"Caesar (also asyndeton!)",
+   hook:"Good things come in THREES. If it grows longer each time, it's a tricolon crescēns."},
+  {t:"Ellipsis",cat:"rep",gk:"Greek: 'a leaving out'",
+   def:"Omitting a word that the reader can easily supply (often est or sunt).",
+   spot:"A sentence that reads fine but is 'missing' an obvious verb.",
+   la:"Quot hominēs, tot sententiae.",en:"So many men, so many opinions (there are).",src:"Terence",
+   hook:"A gap your brain fills automatically — the word is left out, not lost."},
+  {t:"Hendiadys",cat:"rep",gk:"Greek: 'one through two'",
+   def:"Expressing a single idea with two nouns joined by 'et', instead of a noun + adjective.",
+   spot:"Two nouns + et where you'd expect an adjective describing one noun.",
+   la:"pateris libāmus et aurō.",en:"we pour libations from bowls and gold → from golden bowls.",src:"Vergil, Georgics 2.192",
+   hook:"Two nouns, ONE idea. Unhook the 'et' and turn one noun into an adjective."},
+  {t:"Zeugma",cat:"rep",gk:"Greek: 'a yoking'",
+   def:"One word (often a verb) governs two others, but fits each in a different sense.",
+   spot:"A single verb 'yoked' to two objects it can't equally match.",
+   la:"oculōs animumque tenēbat.",en:"he held her eyes and her heart.",src:"teaching example",
+   hook:"One verb pulls two very different partners in one yoke — one literally, one figuratively."},
+  {t:"Polyptoton",cat:"rep",gk:"Greek: 'in many cases'",
+   def:"Repeating the same word in different grammatical forms (cases, tenses).",
+   spot:"The same root word appears twice close together with different endings.",
+   la:"manus manum lavat.",en:"one hand washes the other.",src:"proverb",
+   hook:"Same word, different endings, side by side — manus… manum."},
+
+  {t:"Alliteration",cat:"sound",gk:"Latin: 'to the same letter'",
+   def:"Repetition of the same consonant sound at the start of nearby words.",
+   spot:"A run of words beginning with the same letter/sound.",
+   la:"Ō Tite tūte Tatī tibi tanta tyranne tulistī.",en:"O Titus Tatius the tyrant, such troubles you brought on yourself.",src:"Ennius",
+   hook:"Listen for the drumbeat of the same starting sound: T-T-T-T-T."},
+  {t:"Assonance",cat:"sound",gk:"Latin: 'to sound to'",
+   def:"Repetition of similar vowel sounds in nearby words.",
+   spot:"The same vowel music echoing across a phrase.",
+   la:"nunc animīs opus, Aenēā, nunc pectore firmō.",en:"now there is need of courage, Aeneas, now of a steady heart.",src:"Vergil, Aeneid 6.261",
+   hook:"Alliteration is consonants at the front; assonance is VOWELS anywhere."},
+  {t:"Onomatopoeia",cat:"sound",gk:"Greek: 'name-making'",
+   def:"A word (or line) whose sound imitates its meaning.",
+   spot:"The rhythm or sound of the Latin acts out what it describes.",
+   la:"quadrupedante putrem sonitū quatit ungula campum.",en:"with galloping sound the hoof shakes the crumbling plain.",src:"Vergil, Aeneid 8.596",
+   hook:"Say it aloud — the line literally gallops like the horses it describes."},
+
+  {t:"Chiasmus",cat:"order",gk:"Greek letter chi (X)",
+   def:"Words arranged in an ABBA pattern — the second pair mirrors the first.",
+   spot:"noun-adjective … adjective-noun (or verb-object … object-verb).",
+   la:"rēgēs superbī, humilēs servī.",en:"proud kings, humble slaves (noun-adj, adj-noun).",src:"teaching example",
+   hook:"Draw lines connecting the pairs and you get an X — chi — the letter it's named for."},
+  {t:"Synchysis",cat:"order",gk:"Greek: 'a mixing up'",
+   def:"Interlocked word order, ABAB — two pairs woven together.",
+   spot:"adjective A, adjective B … noun A, noun B.",
+   la:"aurea purpuream subnectit fībula vestem.",en:"a golden brooch fastens the purple robe.",src:"Vergil, Aeneid 4.139",
+   hook:"A-B-A-B, zipped together like a zipper. (Chiasmus crosses; synchysis interlocks.)"},
+  {t:"Golden Line",cat:"order",gk:"Latin: aureus versus",
+   def:"A verse line of two adjectives, a verb, and two nouns: adj-adj-VERB-noun-noun.",
+   spot:"Two adjectives up front, a verb in the exact middle, two nouns at the end.",
+   la:"aurea purpuream subnectit fībula vestem.",en:"golden — purple — fastens — brooch — robe.",src:"Vergil, Aeneid 4.139",
+   hook:"Balanced 2 + verb + 2, with each adjective reaching across to its noun. Perfectly poised = 'golden'."},
+  {t:"Hyperbaton",cat:"order",gk:"Greek: 'a stepping over'",
+   def:"Separating words that naturally belong together, for emphasis.",
+   spot:"An adjective torn far away from its noun.",
+   la:"magnā cum laude.",en:"with great praise (magnā … laude split by cum).",src:"teaching example",
+   hook:"Words that belong together are pulled apart — the gap itself creates the effect."},
+  {t:"Anastrophe",cat:"order",gk:"Greek: 'a turning back'",
+   def:"Reversing normal word order — especially a preposition placed after its noun.",
+   spot:"A preposition sitting behind the word it governs.",
+   la:"maria omnia circum.",en:"around all the seas (= circum omnia maria).",src:"Vergil, Aeneid 1.32",
+   hook:"The little word flips to the BACK: 'the seas around' instead of 'around the seas'."},
+  {t:"Tmesis",cat:"order",gk:"Greek: 'a cutting'",
+   def:"Splitting a single compound word by inserting other words into it.",
+   spot:"Half a word early, the other half later (quae … cumque = quaecumque).",
+   la:"quae mē cumque vocant terrae.",en:"whatever lands call me.",src:"Vergil, Aeneid",
+   hook:"The word is literally CUT in two, with words wedged in the middle."},
+  {t:"Enjambment",cat:"order",gk:"French: 'a striding over'",
+   def:"A sentence or phrase running past the end of a verse line without a pause.",
+   spot:"The line ends but the thought clearly continues onto the next line.",
+   la:"…Trōiae quī prīmus ab ōrīs / Ītaliam…",en:"…who first from the shores of Troy / to Italy…",src:"Vergil, Aeneid 1.1–2",
+   hook:"The meaning spills over the line-break instead of stopping at it."},
+
+  {t:"Metaphor",cat:"mean",gk:"Greek: 'a carrying across'",
+   def:"An implied comparison that calls one thing another, without 'like' or 'as'.",
+   spot:"X is described AS Y directly — no ut/velut signal word.",
+   la:"Ō nāvis, referent in mare tē novī flūctūs.",en:"O ship (of state), new waves carry you back to sea.",src:"Horace, Odes 1.14",
+   hook:"It doesn't say 'like' — it says X IS Y. (The state IS a ship.)"},
+  {t:"Simile",cat:"mean",gk:"Latin: 'like, similar'",
+   def:"An explicit comparison using a signal word: ut, velut, sīcut, quālis, ac.",
+   spot:"Look for the comparison word 'just as…so…'.",
+   la:"…ac velut ingentem formīcae fārris acervum…",en:"…and just as ants (raid) a huge heap of grain…",src:"Vergil, Aeneid 4.402",
+   hook:"The signal words ut / velut / quālis = 'just as' → it's a simile, not a metaphor."},
+  {t:"Metonymy",cat:"mean",gk:"Greek: 'a change of name'",
+   def:"Substituting the name of one thing for something closely associated with it.",
+   spot:"A god or object standing in for what it represents (Bacchus = wine).",
+   la:"sine Cerere et Līberō frīget Venus.",en:"without Ceres (bread) and Liber (wine), Venus (love) grows cold.",src:"Terence",
+   hook:"Name-swap by association: crown = king, Ceres = grain, Mars = war."},
+  {t:"Synecdoche",cat:"mean",gk:"Greek: 'a taking together'",
+   def:"Using a part to stand for the whole (or the whole for a part).",
+   spot:"A single part named where the whole thing is meant (prow = ship).",
+   la:"puppis for the whole nāvis.",en:"'the stern' meaning the whole ship.",src:"common in epic",
+   hook:"A PART speaks for the whole: 'all hands on deck' = all the sailors."},
+  {t:"Personification",cat:"mean",gk:"Latin: 'making a person'",
+   def:"Giving human qualities or actions to a thing, animal, or abstract idea.",
+   spot:"An object or abstraction that acts, feels, or speaks like a person.",
+   la:"Fortūna caeca est.",en:"Fortune is blind.",src:"Cicero",
+   hook:"An idea or thing behaves like a person — Fortune 'sees', Rumour 'runs'."},
+  {t:"Hyperbole",cat:"mean",gk:"Greek: 'a throwing beyond'",
+   def:"Deliberate, obvious exaggeration for effect.",
+   spot:"A claim too extreme to be literally true.",
+   la:"lacrimārum flūmina fūdit.",en:"she poured out rivers of tears.",src:"teaching example",
+   hook:"Over-the-top ON PURPOSE — nobody really cries a river."},
+  {t:"Litotes",cat:"mean",gk:"Greek: 'plainness'",
+   def:"Emphasis by understatement — affirming something by denying its opposite.",
+   spot:"A double negative like nōn / haud + a negative word.",
+   la:"nōn ignārus malī.",en:"not unaware of trouble → all too aware of it.",src:"Vergil, Aeneid 1.630",
+   hook:"'Not bad' means pretty good. Deny the opposite to say it more strongly."},
+  {t:"Oxymoron",cat:"mean",gk:"Greek: 'sharp-dull'",
+   def:"Placing two contradictory terms side by side.",
+   spot:"Two words that clash in meaning, right next to each other.",
+   la:"festīnā lentē.",en:"make haste slowly.",src:"Augustus' motto",
+   hook:"The word itself is one: oxy (sharp) + mōron (dull). Two opposites in one breath."},
+  {t:"Apostrophe",cat:"mean",gk:"Greek: 'a turning away'",
+   def:"Breaking off to address an absent person, a thing, or an abstraction directly.",
+   spot:"The speaker suddenly says 'O you…' to someone/something not present.",
+   la:"Ō fōns Bandusiae…",en:"O spring of Bandusia…",src:"Horace, Odes 3.13",
+   hook:"The speaker turns aside to talk TO someone or something that can't answer."},
+  {t:"Praeteritio",cat:"mean",gk:"Latin: 'a passing over'",
+   def:"Emphasising something by pretending to pass over it ('I won't mention…').",
+   spot:"'I say nothing of…' — then says exactly that.",
+   la:"nōn dīcam tē pecūniam cēpisse…",en:"I won't mention that you took the money…",src:"teaching example",
+   hook:"'I won't even bring up…' — and by not bringing it up, brings it up loudly."},
+  {t:"Aposiopesis",cat:"mean",gk:"Greek: 'becoming silent'",
+   def:"Breaking off a sentence suddenly, leaving the thought unfinished.",
+   spot:"A dash or trailing off mid-threat or mid-thought.",
+   la:"Quōs ego—!",en:"Whom I —! (shall punish).",src:"Vergil, Aeneid 1.135 (Neptune)",
+   hook:"The threat is scarier because the sentence stops mid—"},
+  {t:"Prolepsis",cat:"mean",gk:"Greek: 'an anticipation'",
+   def:"Describing something as already in the state it will only reach later.",
+   spot:"An adjective/result named before the action that causes it happens.",
+   la:"submersās obrue puppēs.",en:"overwhelm the sunken ships (= sink them so they're sunk).",src:"Vergil, Aeneid 1.69",
+   hook:"The end-result is named first — the ships are called 'sunk' before they sink."},
+
+  // ===================== ADVANCED TIER =====================
+  {t:"Epistrophe",cat:"rep",tier:"advanced",gk:"Greek: 'a turning back upon'",
+   def:"Repeating the same word at the END of successive clauses (the mirror of anaphora).",
+   spot:"Line after line finishing on the same word.",
+   la:"…dēbet, spērat, poscit.",en:"…he owes it, he hopes for it, he demands it (same close each time).",src:"teaching example",
+   hook:"Anaphora repeats at the front; epistrophe repeats at the TAIL end."},
+  {t:"Symploce",cat:"rep",tier:"advanced",gk:"Greek: 'an interweaving'",
+   def:"Anaphora and epistrophe together — clauses share both the same opening and the same ending.",
+   spot:"Same first word AND same last word across several clauses.",
+   la:"Quis lēgem tulit? Rullus. Quis populum prīvāvit? Rullus.",en:"Who proposed the law? Rullus. Who robbed the people? Rullus.",src:"after Cicero",
+   hook:"Bookended on both sides — front and back stay fixed, only the middle changes."},
+  {t:"Anadiplosis",cat:"rep",tier:"advanced",gk:"Greek: 'a doubling back'",
+   def:"The word that ends one clause begins the next.",
+   spot:"…word. / Word… — the last word is picked straight back up.",
+   la:"…Gallō, / Gallō, cuius amor…",en:"…for Gallus, / Gallus, whose love…",src:"Vergil, Eclogues 10.72–73",
+   hook:"A chain link: the last word of one link becomes the first of the next."},
+  {t:"Epizeuxis",cat:"rep",tier:"advanced",gk:"Greek: 'a fastening upon'",
+   def:"Immediate repetition of a word, with nothing in between.",
+   spot:"The same word twice in a row, back to back.",
+   la:"Ō Corydōn, Corydōn…",en:"O Corydon, Corydon…",src:"Vergil, Eclogues 2.69",
+   hook:"Same word, twice, no gap — pure emphasis by doubling."},
+  {t:"Diacope",cat:"rep",tier:"advanced",gk:"Greek: 'a cutting through'",
+   def:"Repetition of a word with one or a few words in between.",
+   spot:"Word … (short interruption) … same word again.",
+   la:"vīve, memor lētī, vīve.",en:"live — mindful of death — live.",src:"teaching example",
+   hook:"Like epizeuxis but with a wedge between: 'live, …, live'."},
+  {t:"Epanalepsis",cat:"rep",tier:"advanced",gk:"Greek: 'a taking up again'",
+   def:"Beginning and ending the same clause or line with the same word.",
+   spot:"The clause opens and closes on the identical word.",
+   la:"multa gemēns, ignōminiam plāgāsque, multa.",en:"groaning much — at the shame and the blows — much.",src:"teaching example",
+   hook:"Bookends: the line starts and finishes with the very same word."},
+  {t:"Antithesis",cat:"rep",tier:"advanced",gk:"Greek: 'a setting opposite'",
+   def:"Opposing ideas placed side by side in parallel structure.",
+   spot:"Two balanced halves that contrast (love/hate, war/peace).",
+   la:"Ōdī et amō.",en:"I hate and I love.",src:"Catullus 85",
+   hook:"Opposites, balanced against each other — the tension is the point."},
+  {t:"Antimetabole",cat:"rep",tier:"advanced",gk:"Greek: 'a turning about'",
+   def:"Repeating words in reverse grammatical order (a chiasmus that reuses the same words).",
+   spot:"A…B…B…A with the actual words repeated, not just the pattern.",
+   la:"Edimus ut vīvāmus, nōn vīvimus ut edāmus.",en:"We eat to live, we do not live to eat.",src:"proverbial",
+   hook:"Say it, then say it backwards: 'eat to live / live to eat'."},
+  {t:"Isocolon",cat:"rep",tier:"advanced",gk:"Greek: 'equal limbs'",
+   def:"Successive clauses of equal length and matching structure.",
+   spot:"Two or three phrases that are grammatically parallel and about the same length.",
+   la:"vēnī, vīdī, vīcī.",en:"I came, I saw, I conquered (three equal limbs).",src:"Caesar",
+   hook:"Limbs of equal measure — the phrases march in step."},
+  {t:"Climax",cat:"rep",tier:"advanced",gk:"Greek: 'a ladder' (gradātiō)",
+   def:"Anadiplosis extended into a chain, mounting step by step (a→b, b→c, c→d).",
+   spot:"A ladder of linked words building to a peak.",
+   la:"…labor ūsum, ūsus artem, ars decus peperit.",en:"…toil bred practice, practice skill, skill glory.",src:"teaching example",
+   hook:"A rising staircase — each rung grabs the one before and climbs higher."},
+  {t:"Syllepsis",cat:"rep",tier:"advanced",gk:"Greek: 'a taking together'",
+   def:"One word governs two others but grammatically agrees with, or fits, only one.",
+   spot:"A single verb/adjective stretched over two words it can't equally serve.",
+   la:"nec Venus apta tibī nec sunt tua flūmina nōbīs.",en:"neither is love fit for you, nor your streams for us.",src:"teaching example",
+   hook:"Close cousin of zeugma — one word yoking two, but the grammar only truly fits one."},
+
+  {t:"Hysteron Proteron",cat:"order",tier:"advanced",gk:"Greek: 'later–earlier'",
+   def:"Reversing the natural or chronological order of events.",
+   spot:"The thing that happens second is named first.",
+   la:"moriāmur et in media arma ruāmus.",en:"let us die and rush into the thick of battle.",src:"Vergil, Aeneid 2.353",
+   hook:"Cart before the horse — you 'die' before you 'charge'."},
+  {t:"Hypallage",cat:"order",tier:"advanced",gk:"Greek: 'an interchange' (transferred epithet)",
+   def:"An adjective shifted from the noun it logically describes to a neighbouring one.",
+   spot:"The adjective is grammatically on the 'wrong' noun.",
+   la:"ībant obscūrī sōlā sub nocte.",en:"they went, shadowy, under the lonely night (logically: lonely men, shadowy night).",src:"Vergil, Aeneid 6.268",
+   hook:"The adjective hops to the wrong noun on purpose — the men are lonely, not the night."},
+  {t:"Parenthesis",cat:"order",tier:"advanced",gk:"Greek: 'a putting in beside'",
+   def:"An independent aside dropped into the middle of a sentence.",
+   spot:"A self-contained remark set off inside the main sentence.",
+   la:"Ea (mīror) ipse tulit.",en:"He himself (I'm amazed) brought these things.",src:"teaching example",
+   hook:"A little aside wedged in — lift it out and the sentence still stands."},
+  {t:"Anacoluthon",cat:"order",tier:"advanced",gk:"Greek: 'not following'",
+   def:"A break in grammatical construction: the sentence switches tracks mid-way.",
+   spot:"A sentence begins one structure and finishes with another.",
+   la:"Tū — sed quid moror?",en:"You — but why do I delay?",src:"teaching example",
+   hook:"The grammar changes trains mid-journey and never returns to the first."},
+
+  {t:"Homoeoteleuton",cat:"sound",tier:"advanced",gk:"Greek: 'like endings'",
+   def:"Similar or identical endings on nearby words (a near-rhyme effect).",
+   spot:"Words close together that chime with matching endings.",
+   la:"abeuntēs, redeuntēs, manentēs.",en:"going away, returning, remaining (-ēs, -ēs, -ēs).",src:"teaching example",
+   hook:"Matching tails — the word-endings rhyme."},
+  {t:"Consonance",cat:"sound",tier:"advanced",gk:"Latin: 'a sounding together'",
+   def:"Repetition of consonant sounds within or across nearby words (not just at the start).",
+   spot:"The same consonant echoing anywhere in a run of words.",
+   la:"tenerīs… frīgoribus… mūrmure.",en:"the r-sounds rumble through the phrase.",src:"teaching example",
+   hook:"Alliteration is consonants at the FRONT; consonance is consonants ANYWHERE."},
+
+  {t:"Antonomasia",cat:"mean",tier:"advanced",gk:"Greek: 'a naming instead'",
+   def:"Using an epithet or title in place of a proper name (or a name for a type).",
+   spot:"A description or patronymic standing in for the actual name.",
+   la:"Pēlīdēs for Achilles.",en:"'the son of Peleus' meaning Achilles.",src:"common in epic",
+   hook:"A nickname or title swaps in for the real name — 'the Poet' = Vergil."},
+  {t:"Periphrasis",cat:"mean",tier:"advanced",gk:"Greek: 'a speaking around'",
+   def:"Describing something in a roundabout phrase instead of naming it plainly.",
+   spot:"A wordy description where one plain word would do.",
+   la:"Anchīsae fīlius for Aeneas.",en:"'the son of Anchises' instead of just Aeneas.",src:"common in epic",
+   hook:"The long way round the noun — circumlocution."},
+  {t:"Allegory",cat:"mean",tier:"advanced",gk:"Greek: 'speaking otherwise'",
+   def:"An extended metaphor sustained through a whole passage, carrying a second meaning.",
+   spot:"A single image kept running so it clearly stands for something else.",
+   la:"Ō nāvis, referent in mare tē novī flūctūs…",en:"the whole poem: 'ship' = the Roman state, sustained throughout.",src:"Horace, Odes 1.14",
+   hook:"A metaphor that doesn't stop — one picture standing for a whole hidden meaning."},
+  {t:"Catachresis",cat:"mean",tier:"advanced",gk:"Greek: 'a misuse'",
+   def:"A strained or mixed metaphor that stretches a word beyond its normal sense.",
+   spot:"A metaphor pushed to a deliberately odd or impossible image.",
+   la:"ōs fluminis.",en:"the 'mouth' of a river.",src:"teaching example",
+   hook:"A metaphor bent past its limit — rivers don't really have mouths."},
+  {t:"Irony",cat:"mean",tier:"advanced",gk:"Greek: 'feigned ignorance'",
+   def:"Saying the opposite of what is meant, so the real sense is understood as reversed.",
+   spot:"Praise that is clearly meant as blame (or vice versa).",
+   la:"Ēgregiam vērō laudem…",en:"A fine renown indeed…! (bitterly sarcastic).",src:"Vergil, Aeneid 4.93",
+   hook:"Words say one thing; tone means the reverse."},
+  {t:"Rhetorical Question",cat:"mean",tier:"advanced",gk:"Latin: interrogātiō",
+   def:"A question asked for effect, not for an answer (the answer is obvious).",
+   spot:"A question where no reply is expected or needed.",
+   la:"Quō ūsque tandem abūtēre, Catilīna, patientiā nostrā?",en:"How long, Catiline, will you go on abusing our patience?",src:"Cicero, In Catilinam 1.1",
+   hook:"A question that isn't really asking — the answer's already clear."},
+  {t:"Exclamatio",cat:"mean",tier:"advanced",gk:"Latin: 'a crying out'",
+   def:"A sudden emotional exclamation.",
+   spot:"An 'O…!' or heightened outburst of feeling.",
+   la:"Ō tempora, ō mōrēs!",en:"Oh, the times! Oh, the morals!",src:"Cicero, In Catilinam 1.2",
+   hook:"A burst of raw feeling — the exclamation mark made into a figure."},
+  {t:"Correctio",cat:"mean",tier:"advanced",gk:"Latin: 'a correcting'",
+   def:"Retracting or upgrading what was just said, for emphasis ('…no, rather…').",
+   spot:"A word is stated, then immediately 'corrected' to a stronger one.",
+   la:"hostis, immō vērō tyrannus.",en:"an enemy — no, rather, a tyrant.",src:"teaching example",
+   hook:"'…no, better yet…' — the speaker swaps in a stronger word for force."},
+  {t:"Paradox",cat:"mean",tier:"advanced",gk:"Greek: 'contrary to expectation'",
+   def:"A statement that seems self-contradictory yet expresses a truth.",
+   spot:"A whole idea that sounds impossible but makes sense on reflection.",
+   la:"cum tacent, clāmant.",en:"when they are silent, they shout.",src:"Cicero, In Catilinam 1.21",
+   hook:"Sounds contradictory, is actually true. (Oxymoron = 2 words; paradox = a whole idea.)"},
+  {t:"Meiosis",cat:"mean",tier:"advanced",gk:"Greek: 'a lessening'",
+   def:"Deliberate understatement that belittles or diminishes.",
+   spot:"Something big described as trivially small.",
+   la:"scrātula (a mere scratch) for a grave wound.",en:"calling a deadly blow 'just a scratch'.",src:"teaching example",
+   hook:"Shrinking something on purpose — the opposite of hyperbole."},
+  {t:"Sententia",cat:"mean",tier:"advanced",gk:"Latin: 'a maxim'",
+   def:"A pithy, quotable general truth dropped into the text.",
+   spot:"A stand-alone one-liner of proverbial wisdom.",
+   la:"Fortēs Fortūna adiuvat.",en:"Fortune favours the brave.",src:"Terence / Cicero",
+   hook:"A quotable maxim — the kind of line you'd stitch on a sampler."},
+  {t:"Aporia",cat:"mean",tier:"advanced",gk:"Greek: 'no way through'",
+   def:"Feigned doubt or deliberation — pretending to be at a loss what to say or do.",
+   spot:"A speaker openly asking 'What am I to do?' for effect.",
+   la:"Quid faciam? Maneam an abeam?",en:"What am I to do? Stay, or go?",src:"teaching example",
+   hook:"Staged hesitation — 'I hardly know where to begin…' as a device."},
+  {t:"Euphemism",cat:"mean",tier:"advanced",gk:"Greek: 'good-speaking'",
+   def:"Substituting a mild or indirect expression for a harsh or blunt one.",
+   spot:"A gentle phrase standing in for something unpleasant (esp. death).",
+   la:"sī quid mihi acciderit.",en:"if anything should happen to me (= if I die).",src:"idiomatic",
+   hook:"Softening the blow — the polite way of saying the hard thing."}
+];
+DEVICES.forEach(d=>{if(!d.tier)d.tier='core';});
+
+// ---------- state / storage ----------
+const KEY="glosso_figurae_v1";
+let known={}; try{known=JSON.parse(localStorage.getItem(KEY))||{};}catch(e){known={};}
+function saveKnown(){try{localStorage.setItem(KEY,JSON.stringify(known));}catch(e){}}
+let tierFilter='core';
+function pool(){return DEVICES.filter(d=>tierFilter==='all'||d.tier===tierFilter);}
+function updateMastery(){
+  const set=pool();
+  const n=set.filter(d=>known[d.t]).length;
+  document.getElementById('mfill').style.width=(n/set.length*100)+'%';
+  document.getElementById('mtext').textContent=n+' / '+set.length;
+}
+function catColor(c){return CATS[c].color;}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+// ---------- tabs ----------
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
+  t.classList.add('active');
+  document.getElementById(t.dataset.tab).classList.add('on');
+  if(t.dataset.tab==='spot')newSpot();
+  if(t.dataset.tab==='name')newName();
+  if(t.dataset.tab==='match')newMatch();
+}));
+
+// ---------- LEARN ----------
+let deck=pool(), pos=0;
+const flip=document.getElementById('flip');
+function rebuildDeck(){deck=pool();pos=0;renderCard();}
+function renderCard(){
+  if(!deck.length)deck=pool();
+  const d=deck[pos];
+  const col=catColor(d.cat);
+  flip.classList.remove('flipped');
+  document.getElementById('fCat').textContent=CATS[d.cat].label;
+  document.getElementById('fCat').style.background=col;
+  document.getElementById('bCat').textContent=CATS[d.cat].label;
+  document.getElementById('bCat').style.background=col;
+  document.getElementById('fTerm').textContent=d.t;
+  const tb=document.getElementById('fTier');
+  tb.textContent=d.tier;tb.className='tier-badge '+d.tier;
+  document.getElementById('fGreek').textContent=d.gk;
+  document.getElementById('fLatin').textContent='“'+d.la+'”';
+  document.getElementById('fEng').textContent=d.en;
+  document.getElementById('fSrc').textContent='— '+d.src;
+  document.getElementById('bDef').textContent=d.def;
+  document.getElementById('bSpot').textContent=d.spot;
+  document.getElementById('bHook').textContent=d.hook;
+  document.getElementById('deckPos').textContent=(pos+1)+' / '+deck.length;
+  const kb=document.getElementById('knownBtn');
+  kb.classList.toggle('is-known',!!known[d.t]);
+  kb.textContent=known[d.t]?'✓ Known':'Mark as known';
+}
+flip.addEventListener('click',()=>flip.classList.toggle('flipped'));
+document.getElementById('next').addEventListener('click',e=>{e.stopPropagation();pos=(pos+1)%deck.length;renderCard();});
+document.getElementById('prev').addEventListener('click',e=>{e.stopPropagation();pos=(pos-1+deck.length)%deck.length;renderCard();});
+document.getElementById('shuffleBtn').addEventListener('click',()=>{deck=shuffle(deck);pos=0;renderCard();});
+document.getElementById('knownBtn').addEventListener('click',()=>{
+  const d=deck[pos];known[d.t]=!known[d.t];saveKnown();updateMastery();renderCard();
+});
+
+// ---------- tier filter ----------
+document.querySelectorAll('.tierbtn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.tierbtn').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');tierFilter=b.dataset.tier;
+  updateMastery();rebuildDeck();
+  const active=document.querySelector('.tab.active').dataset.tab;
+  if(active==='spot')newSpot();
+  if(active==='name')newName();
+  if(active==='match')newMatch();
+}));
+
+// ---------- quiz helpers ----------
+function distractors(correctT,n){
+  const p=shuffle(pool().filter(d=>d.t!==correctT));
+  return p.slice(0,n);
+}
+
+// ---------- SPOT (example -> name) ----------
+let spotScore=0,spotTotal=0,spotStreak=0;
+function newSpot(){
+  const withLa=pool().filter(d=>d.la);
+  const d=withLa[Math.random()*withLa.length|0];
+  document.getElementById('spotLatin').textContent='“'+d.la+'”';
+  document.getElementById('spotEng').textContent=d.en+'  — '+d.src;
+  const opts=shuffle([d,...distractors(d.t,3)]);
+  const box=document.getElementById('spotOpts');box.innerHTML='';
+  document.getElementById('spotExplain').classList.remove('on');
+  document.getElementById('spotNext').classList.remove('on');
+  opts.forEach(o=>{
+    const b=document.createElement('button');b.className='opt';b.textContent=o.t;
+    b.onclick=()=>answerSpot(b,o,d,box);box.appendChild(b);
+  });
+}
+function answerSpot(btn,chosen,correct,box){
+  [...box.children].forEach(b=>b.disabled=true);
+  spotTotal++;
+  if(chosen.t===correct.t){btn.classList.add('correct');spotScore++;spotStreak++;}
+  else{btn.classList.add('wrong');spotStreak=0;
+    [...box.children].forEach(b=>{if(b.textContent===correct.t)b.classList.add('correct');});}
+  document.getElementById('spotScore').textContent=spotScore;
+  document.getElementById('spotTotal').textContent=spotTotal;
+  document.getElementById('spotStreak').textContent=spotStreak>=2?('🔥 '+spotStreak+' streak'):'';
+  const ex=document.getElementById('spotExplain');
+  ex.innerHTML='<span class="ex-term">'+correct.t+'</span> — '+correct.def+'<div class="ex-hook">'+correct.hook+'</div>';
+  ex.classList.add('on');
+  document.getElementById('spotNext').classList.add('on');
+}
+document.getElementById('spotNext').addEventListener('click',newSpot);
+
+// ---------- NAME (definition -> name) ----------
+let nameScore=0,nameTotal=0,nameStreak=0;
+function newName(){
+  const p=pool();const d=p[Math.random()*p.length|0];
+  document.getElementById('nameDef').textContent=d.def;
+  const opts=shuffle([d,...distractors(d.t,3)]);
+  const box=document.getElementById('nameOpts');box.innerHTML='';
+  document.getElementById('nameExplain').classList.remove('on');
+  document.getElementById('nameNext').classList.remove('on');
+  opts.forEach(o=>{
+    const b=document.createElement('button');b.className='opt';b.textContent=o.t;
+    b.onclick=()=>answerName(b,o,d,box);box.appendChild(b);
+  });
+}
+function answerName(btn,chosen,correct,box){
+  [...box.children].forEach(b=>b.disabled=true);
+  nameTotal++;
+  if(chosen.t===correct.t){btn.classList.add('correct');nameScore++;nameStreak++;}
+  else{btn.classList.add('wrong');nameStreak=0;
+    [...box.children].forEach(b=>{if(b.textContent===correct.t)b.classList.add('correct');});}
+  document.getElementById('nameScore').textContent=nameScore;
+  document.getElementById('nameTotal').textContent=nameTotal;
+  document.getElementById('nameStreak').textContent=nameStreak>=2?('🔥 '+nameStreak+' streak'):'';
+  const ex=document.getElementById('nameExplain');
+  ex.innerHTML='<span class="ex-term">'+correct.t+'</span> · <i>'+(correct.la?correct.la:'')+'</i><div class="ex-hook">'+correct.hook+'</div>';
+  ex.classList.add('on');
+  document.getElementById('nameNext').classList.add('on');
+}
+document.getElementById('nameNext').addEventListener('click',newName);
+
+// ---------- MATCH ----------
+let mSel=null,mMatched=0,mStart=0;
+function newMatch(){
+  const picks=shuffle(pool()).slice(0,6);
+  const names=shuffle(picks),defs=shuffle(picks);
+  mSel=null;mMatched=0;mStart=Date.now();
+  document.getElementById('matchDone').classList.remove('on');
+  const grid=document.getElementById('matchGrid');grid.innerHTML='';
+  const nl=document.createElement('div');nl.className='mcol-label';nl.textContent='Term';
+  const dl=document.createElement('div');dl.className='mcol-label';dl.textContent='Definition';
+  grid.appendChild(nl);grid.appendChild(dl);
+  const nCol=document.createElement('div'),dCol=document.createElement('div');
+  nCol.style.display=dCol.style.display='grid';nCol.style.gap=dCol.style.gap='10px';
+  names.forEach(d=>{
+    const el=document.createElement('div');el.className='mitem name';el.textContent=d.t;el.dataset.t=d.t;
+    el.onclick=()=>pick(el,'name');nCol.appendChild(el);
+  });
+  defs.forEach(d=>{
+    const el=document.createElement('div');el.className='mitem def';el.textContent=d.def;el.dataset.t=d.t;
+    el.onclick=()=>pick(el,'def');dCol.appendChild(el);
+  });
+  grid.appendChild(nCol);grid.appendChild(dCol);
+}
+function pick(el,type){
+  if(el.classList.contains('matched'))return;
+  if(!mSel){mSel={el,type,t:el.dataset.t};el.classList.add('sel');return;}
+  if(mSel.el===el){el.classList.remove('sel');mSel=null;return;}
+  if(mSel.type===type){mSel.el.classList.remove('sel');mSel={el,type,t:el.dataset.t};el.classList.add('sel');return;}
+  if(mSel.t===el.dataset.t){
+    el.classList.add('matched');mSel.el.classList.add('matched');mSel.el.classList.remove('sel');
+    mSel=null;mMatched++;
+    if(mMatched===6){
+      const secs=((Date.now()-mStart)/1000).toFixed(1);
+      document.getElementById('matchTime').textContent='All six matched in '+secs+'s';
+      document.getElementById('matchDone').classList.add('on');
+    }
+  } else {
+    const bad=el,bad2=mSel.el;bad.classList.add('flash-bad');bad2.classList.add('flash-bad');
+    mSel.el.classList.remove('sel');mSel=null;
+    setTimeout(()=>{bad.classList.remove('flash-bad');bad2.classList.remove('flash-bad');},450);
+  }
+}
+document.getElementById('matchReplay').addEventListener('click',newMatch);
+
+// init
+updateMastery();
+renderCard();
+</script>
+</body>
+</html>
