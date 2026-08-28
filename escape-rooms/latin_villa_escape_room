@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vīlla Mystēriōrum · A Glossomathia Latin Escape Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --purple:#8E7CC3; --purple-mid:#a88bcf; --purple-deep:#6d5b87; --purple-bg:#f7eef9;
+    --blue:#7aa6b9; --blue-mid:#5e95ab; --blue-deep:#3f6d82; --blue-bg:#e9f1f7;
+    --green:#6fae84; --green-mid:#5a9670; --green-deep:#3f7a54; --green-bg:#eaf6ee;
+    --rose:#c98bb0; --rose-mid:#b87aa0; --rose-deep:#9c5980; --rose-bg:#fbeef5;
+    --plum:#4a4458; --lav:#ece3f7; --lav-pale:#f7f2fc; --gold:#c9a86a;
+    --ink:#4a4458;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Nunito',sans-serif; color:var(--ink);
+    background:linear-gradient(160deg,#f7f2fc 0%, #f7eef9 35%, #e9f1f7 70%, #eaf6ee 100%);
+    min-height:100vh; padding:24px 14px 60px;
+  }
+  .wrap{max-width:760px; margin:0 auto;}
+  h1,h2{font-family:'Cormorant Garamond',serif;}
+  h1{font-size:clamp(2rem,6vw,3.2rem); font-weight:700; color:var(--purple-deep); text-align:center; line-height:1.1;}
+  .subtitle{text-align:center; color:var(--purple-mid); font-weight:700; letter-spacing:.14em; text-transform:uppercase; font-size:.78rem; margin-top:8px;}
+
+  /* top bar */
+  .hud{
+    display:flex; justify-content:space-between; align-items:center; gap:10px;
+    background:#ffffffcc; backdrop-filter:blur(4px);
+    border:2px solid var(--lav); border-radius:18px; padding:10px 16px; margin:20px 0 18px;
+    position:sticky; top:8px; z-index:5;
+  }
+  .hud .timer{font-weight:800; font-size:1.15rem; color:var(--purple-deep); font-variant-numeric:tabular-nums;}
+  .keys{display:flex; gap:6px; font-size:1.05rem;}
+  .keyslot{width:34px; height:34px; border-radius:10px; background:var(--lav-pale); border:2px dashed #cbbfe6;
+    display:flex; align-items:center; justify-content:center; font-family:'Cormorant Garamond',serif; font-weight:700; color:var(--purple-deep);}
+  .keyslot.filled{border-style:solid; background:#fff;}
+  .progress-track{height:8px; background:var(--lav-pale); border-radius:99px; overflow:hidden; flex:1;}
+  .progress-fill{height:100%; width:0%; border-radius:99px;
+    background:linear-gradient(90deg,var(--purple),var(--blue),var(--green),var(--rose)); transition:width .5s ease;}
+
+  .card{
+    background:#fff; border-radius:24px; padding:28px 26px 26px;
+    box-shadow:0 10px 30px rgba(142,124,195,.14); border:2px solid var(--lav);
+    animation:pop .35s ease;
+  }
+  @keyframes pop{from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:none;}}
+  @media (prefers-reduced-motion:reduce){ *{animation:none !important; transition:none !important;} }
+
+  .room-eyebrow{font-size:.75rem; font-weight:800; letter-spacing:.18em; text-transform:uppercase; margin-bottom:6px;}
+  .card h2{font-size:clamp(1.6rem,5vw,2.3rem); font-weight:700; margin-bottom:4px;}
+  .story{font-size:1rem; line-height:1.65; margin:12px 0 20px; color:#5c5570;}
+  .story em{font-style:italic;}
+
+  .q{border-radius:18px; padding:18px 18px 16px; margin-bottom:16px; border:2px solid transparent;}
+  .q .qtext{font-weight:700; margin-bottom:12px; line-height:1.5;}
+  .q .latin{font-family:'Cormorant Garamond',serif; font-size:1.25em; font-weight:600;}
+  .choices{display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:10px;}
+  button.choice{
+    font-family:'Nunito',sans-serif; font-weight:700; font-size:1rem; cursor:pointer;
+    background:#fff; border:2px solid #ddd3ef; border-radius:14px; padding:12px 10px; color:var(--ink);
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  button.choice:hover{transform:translateY(-2px); box-shadow:0 6px 14px rgba(74,68,88,.12);}
+  button.choice:focus-visible, .typein input:focus-visible, .check:focus-visible, .bigbtn:focus-visible, .hintbtn:focus-visible{
+    outline:3px solid var(--purple); outline-offset:2px;}
+  button.choice.correct{background:var(--green-bg); border-color:var(--green); color:var(--green-deep);}
+  button.choice.wrong{background:var(--rose-bg); border-color:var(--rose); color:var(--rose-deep); animation:shake .3s;}
+  @keyframes shake{25%{transform:translateX(-4px);}75%{transform:translateX(4px);}}
+
+  .typein{display:flex; gap:10px; flex-wrap:wrap;}
+  .typein input{
+    flex:1; min-width:150px; font-family:'Nunito',sans-serif; font-size:1.05rem; font-weight:700;
+    padding:11px 14px; border-radius:14px; border:2px solid #ddd3ef; color:var(--ink); background:#fff;
+  }
+  .check{
+    font-family:'Nunito',sans-serif; font-weight:800; font-size:1rem; cursor:pointer;
+    border:none; border-radius:14px; padding:11px 20px; color:#fff;
+  }
+  .q.solved{border-color:var(--green); background:var(--green-bg) !important;}
+  .q.solved .check{opacity:.5; pointer-events:none;}
+  .feedback{margin-top:10px; font-weight:700; font-size:.92rem; min-height:1.2em;}
+  .feedback.good{color:var(--green-deep);}
+  .feedback.bad{color:var(--rose-deep);}
+
+  .hintbtn{background:none; border:none; cursor:pointer; font-family:'Nunito',sans-serif; font-weight:700;
+    font-size:.85rem; color:var(--blue-deep); text-decoration:underline dotted; margin-top:8px; padding:2px;}
+  .hinttext{display:none; margin-top:8px; font-size:.9rem; background:var(--lav-pale); border-radius:12px; padding:10px 12px; color:var(--purple-deep);}
+  .hinttext.show{display:block;}
+
+  .doorbox{margin-top:8px; text-align:center; padding:20px; border-radius:18px; background:var(--lav-pale); border:2px dashed #cbbfe6;}
+  .doorbox.open{border-style:solid; background:var(--green-bg); border-color:var(--green);}
+  .bigbtn{
+    font-family:'Nunito',sans-serif; font-weight:800; font-size:1.08rem; cursor:pointer;
+    border:none; border-radius:16px; padding:14px 30px; color:#fff; background:var(--purple);
+    box-shadow:0 8px 18px rgba(142,124,195,.35); transition:transform .12s ease;
+  }
+  .bigbtn:hover{transform:translateY(-2px);}
+  .bigbtn:disabled{background:#cfc6e4; box-shadow:none; cursor:not-allowed; transform:none;}
+  .keybanner{
+    display:none; margin-top:16px; padding:16px; border-radius:16px; text-align:center;
+    background:linear-gradient(120deg,#fdf8ec,#fbf3e0); border:2px solid var(--gold); color:#7a5f2e; font-weight:800;
+  }
+  .keybanner .numeral{font-family:'Cormorant Garamond',serif; font-size:2rem; display:block; color:#8a6a2f;}
+  .keybanner.show{display:block; animation:pop .4s ease;}
+
+  table.endings{width:100%; border-collapse:collapse; margin:6px 0 4px; font-size:.95rem;}
+  table.endings th{font-weight:800; padding:7px 9px; text-align:left;}
+  table.endings td{padding:7px 9px; font-family:'Cormorant Garamond',serif; font-size:1.1rem; font-weight:600;}
+  table.endings tr:nth-child(even){background:#ffffff88;}
+
+  .screen{display:none;}
+  .screen.active{display:block;}
+
+  /* per-room tints */
+  .r1 .room-eyebrow, .r1 h2{color:var(--purple-deep);} .r1 .q{background:var(--purple-bg);} .r1 .check{background:var(--purple);}
+  .r2 .room-eyebrow, .r2 h2{color:var(--blue-deep);}   .r2 .q{background:var(--blue-bg);}   .r2 .check{background:var(--blue-mid);}
+  .r3 .room-eyebrow, .r3 h2{color:var(--green-deep);}  .r3 .q{background:var(--green-bg);}  .r3 .check{background:var(--green-mid);}
+  .r4 .room-eyebrow, .r4 h2{color:var(--rose-deep);}   .r4 .q{background:var(--rose-bg);}   .r4 .check{background:var(--rose-mid);}
+  .r5 .room-eyebrow, .r5 h2{color:var(--purple-deep);} .r5 .q{background:var(--lav-pale);}  .r5 .check{background:var(--purple);}
+
+  .final-code{display:flex; gap:10px; justify-content:center; margin:14px 0;}
+  .final-code input{
+    width:58px; height:64px; text-align:center; font-size:1.8rem; font-weight:800; font-family:'Cormorant Garamond',serif;
+    border:2px solid #ddd3ef; border-radius:14px; color:var(--purple-deep); background:#fff;
+  }
+  .cert{
+    text-align:center; padding:34px 24px; border-radius:24px;
+    background:linear-gradient(150deg,#f7f2fc,#fbeef5 55%,#eaf6ee); border:3px solid var(--gold);
+  }
+  .cert h2{color:var(--purple-deep); font-size:2.4rem;}
+  .cert .laurel{font-size:2.6rem;}
+  .cert .time{font-size:1.3rem; font-weight:800; color:var(--green-deep); margin:10px 0;}
+  .confetti{position:fixed; top:-10px; font-size:1.3rem; animation:fall linear forwards; z-index:50; pointer-events:none;}
+  @keyframes fall{to{transform:translateY(105vh) rotate(540deg); opacity:.7;}}
+
+  footer{text-align:center; margin-top:34px; color:#b3a7c9; font-family:'Cormorant Garamond',serif; font-size:1.05rem;}
+
+  /* ---------- Bubo the owl ---------- */
+  .owl-fixed{
+    position:fixed; right:14px; bottom:14px; z-index:40; display:flex; flex-direction:column; align-items:flex-end;
+    pointer-events:none;
+  }
+  .owl-bubble{
+    background:#fff; border:2px solid var(--lav); border-radius:16px 16px 4px 16px;
+    padding:9px 14px; font-weight:800; font-size:.9rem; color:var(--purple-deep);
+    box-shadow:0 6px 16px rgba(142,124,195,.22); margin-bottom:6px; max-width:210px;
+    opacity:0; transform:translateY(6px); transition:opacity .25s ease, transform .25s ease;
+  }
+  .owl-bubble.show{opacity:1; transform:none;}
+  .owl-svg{width:74px; height:auto; filter:drop-shadow(0 5px 10px rgba(74,68,88,.2)); animation:bob 3.2s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+  .owl-svg.happy{animation:owljump .55s ease;}
+  @keyframes owljump{0%,100%{transform:translateY(0) rotate(0);}30%{transform:translateY(-16px) rotate(-6deg);}60%{transform:translateY(-8px) rotate(6deg);}}
+  .cert .owl-svg{width:110px; animation:bob 2.6s ease-in-out infinite;}
+
+  /* ---------- emoji match game ---------- */
+  .matchgrid{display:flex; flex-direction:column; gap:12px;}
+  .matchrow{display:flex; flex-wrap:wrap; gap:10px; justify-content:center;}
+  button.mword, button.memoji{
+    font-family:'Nunito',sans-serif; cursor:pointer; border-radius:14px; border:2px solid #ddd3ef;
+    background:#fff; transition:transform .12s ease, box-shadow .12s ease;
+  }
+  button.mword{font-family:'Cormorant Garamond',serif; font-size:1.25rem; font-weight:700; padding:9px 16px; color:var(--ink);}
+  button.memoji{font-size:1.7rem; padding:7px 13px;}
+  button.mword:hover, button.memoji:hover{transform:translateY(-2px); box-shadow:0 6px 14px rgba(74,68,88,.12);}
+  button.mword:focus-visible, button.memoji:focus-visible{outline:3px solid var(--purple); outline-offset:2px;}
+  button.mword.picked, button.memoji.picked{border-color:var(--purple); background:var(--lav-pale); transform:translateY(-2px);}
+  button.mword.matched, button.memoji.matched{
+    border-color:var(--green); background:var(--green-bg); color:var(--green-deep);
+    pointer-events:none; animation:matchpop .35s ease;
+  }
+  @keyframes matchpop{40%{transform:scale(1.15);}}
+  button.mword.nope, button.memoji.nope{border-color:var(--rose); background:var(--rose-bg); animation:shake .3s;}
+</style>
+</head>
+<body>
+<div class="owl-fixed" aria-hidden="true">
+  <div class="owl-bubble" id="owlbubble">Salvē! I am Bubō, guardian of the villa. 🌿</div>
+  <svg class="owl-svg" id="owlsvg" viewBox="0 0 120 130" xmlns="http://www.w3.org/2000/svg">
+    <!-- body -->
+    <ellipse cx="60" cy="78" rx="42" ry="46" fill="#b9a68f"/>
+    <!-- chest -->
+    <ellipse cx="60" cy="90" rx="27" ry="30" fill="#e8ddcf"/>
+    <!-- chevron chest feathers -->
+    <path d="M46 82 l7 6 7-6" stroke="#c9b8a2" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M60 82 l7 6 7-6" stroke="#c9b8a2" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M53 94 l7 6 7-6" stroke="#c9b8a2" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <!-- wings -->
+    <ellipse cx="20" cy="82" rx="12" ry="26" fill="#a08d76" transform="rotate(12 20 82)"/>
+    <ellipse cx="100" cy="82" rx="12" ry="26" fill="#a08d76" transform="rotate(-12 100 82)"/>
+    <!-- head tufts -->
+    <path d="M28 32 q-4-14 8-16 q-2 8 4 12z" fill="#a08d76"/>
+    <path d="M92 32 q4-14 -8-16 q2 8 -4 12z" fill="#a08d76"/>
+    <!-- head -->
+    <circle cx="60" cy="42" r="32" fill="#b9a68f"/>
+    <!-- eye discs -->
+    <circle cx="47" cy="42" r="14" fill="#fff"/>
+    <circle cx="73" cy="42" r="14" fill="#fff"/>
+    <!-- navy irises -->
+    <circle cx="47" cy="43" r="8" fill="#08314a"/>
+    <circle cx="73" cy="43" r="8" fill="#08314a"/>
+    <circle cx="50" cy="40" r="2.6" fill="#fff"/>
+    <circle cx="76" cy="40" r="2.6" fill="#fff"/>
+    <!-- beak -->
+    <path d="M60 48 l-6 7 q6 6 12 0z" fill="#e8913c"/>
+    <!-- laurel wreath -->
+    <path d="M32 26 q10-10 28-11 q18 1 28 11" stroke="#c9a86a" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <ellipse cx="34" cy="24" rx="4" ry="2.4" fill="#c9a86a" transform="rotate(-35 34 24)"/>
+    <ellipse cx="44" cy="18.5" rx="4" ry="2.4" fill="#c9a86a" transform="rotate(-20 44 18.5)"/>
+    <ellipse cx="86" cy="24" rx="4" ry="2.4" fill="#c9a86a" transform="rotate(35 86 24)"/>
+    <ellipse cx="76" cy="18.5" rx="4" ry="2.4" fill="#c9a86a" transform="rotate(20 76 18.5)"/>
+    <!-- feet -->
+    <path d="M46 122 l-4 6 M46 122 l0 7 M46 122 l4 6" stroke="#e8913c" stroke-width="3.4" stroke-linecap="round"/>
+    <path d="M74 122 l-4 6 M74 122 l0 7 M74 122 l4 6" stroke="#e8913c" stroke-width="3.4" stroke-linecap="round"/>
+  </svg>
+</div>
+
+<div class="wrap">
+  <h1>Vīlla Mystēriōrum</h1>
+  <p class="subtitle">🌿 A Glossomathia Latin Escape Room 🌿</p>
+
+  <div class="hud" id="hud" style="display:none;">
+    <div class="timer" id="timer">00:00</div>
+    <div class="progress-track"><div class="progress-fill" id="pfill"></div></div>
+    <div class="keys">
+      <div class="keyslot" id="k1"></div><div class="keyslot" id="k2"></div>
+      <div class="keyslot" id="k3"></div><div class="keyslot" id="k4"></div>
+    </div>
+  </div>
+
+  <!-- INTRO -->
+  <section class="screen active card r1" id="s0">
+    <p class="room-eyebrow">Salvē, explōrātrīx!</p>
+    <h2>The Villa Has Locked Its Doors…</h2>
+    <p class="story">
+      You slipped into an ancient Roman villa to admire the mosaics, but at sunset the great bronze doors
+      slammed shut behind you. A carved owl above the atrium blinks at you and hoots:
+      <em>"Only one who masters the words of the Romans may leave. Pass through my four rooms,
+      collect the four numeral keys, and the Porta Magna will open."</em>
+      <br><br>
+      Solve every puzzle in a room to earn its key. Spelling counts, but you may type long marks or leave
+      them out (puellae = puellae). Hints are free, so use them when you are stuck. Good luck! 🌿
+    </p>
+    <div style="text-align:center;"><button class="bigbtn" onclick="startGame()">Enter the villa</button></div>
+  </section>
+
+  <!-- ROOM 1: ATRIUM — 1st declension nouns -->
+  <section class="screen card r1" id="s1">
+    <p class="room-eyebrow">Room I · Ātrium</p>
+    <h2>The Hall of the First Declension</h2>
+    <p class="story">Water trickles in the impluvium. On the wall, a mosaic of a girl (<span class="latin">puella</span>) holds a jug of water (<span class="latin">aqua</span>). Beneath her, tiles are missing from an endings chart. Restore the words to reveal the first key.</p>
+
+    <div class="q" id="q1a">
+      <p class="qtext">1 · The mosaic reads: <span class="latin">"Jug of the girl."</span> Type <span class="latin">puella</span> in the genitive singular ("of the girl").</p>
+      <div class="typein"><input type="text" aria-label="answer" placeholder="puell…"><button class="check">Check</button></div>
+      <button class="hintbtn">Need a hint?</button><div class="hinttext">The 1st declension genitive singular ending is <b>-ae</b>.</div>
+      <p class="feedback"></p>
+    </div>
+
+    <div class="q" id="q1b">
+      <p class="qtext">2 · A tile shows the girls doing something to the stars. Which form means "the stars" as a direct object (accusative plural)?</p>
+      <div class="choices">
+        <button class="choice" data-ok="0">stellae</button>
+        <button class="choice" data-ok="1">stellās</button>
+        <button class="choice" data-ok="0">stellīs</button>
+        <button class="choice" data-ok="0">stellārum</button>
+      </div>
+      <button class="hintbtn">Need a hint?</button><div class="hinttext">Accusative plural of the 1st declension ends in <b>-ās</b>.</div>
+      <p class="feedback"></p>
+    </div>
+
+    <div class="q" id="q1c">
+      <p class="qtext">3 · Fill the missing tile in the chart. Type the ablative singular of <span class="latin">terra</span> ("by/with the land").</p>
+      <table class="endings">
+        <tr><th></th><th>Singular</th><th>Plural</th></tr>
+        <tr><td>Nom.</td><td>terra</td><td>terrae</td></tr>
+        <tr><td>Gen.</td><td>terrae</td><td>terrārum</td></tr>
+        <tr><td>Dat.</td><td>terrae</td><td>terrīs</td></tr>
+        <tr><td>Acc.</td><td>terram</td><td>terrās</td></tr>
+        <tr><td>Abl.</td><td><b>?</b></td><td>terrīs</td></tr>
+      </table>
+      <div class="typein"><input type="text" aria-label="answer" placeholder="terr…"><button class="check">Check</button></div>
+      <button class="hintbtn">Need a hint?</button><div class="hinttext">Ablative singular is <b>-ā</b> (long a). You may simply type <b>terra</b>.</div>
+      <p class="feedback"></p>
+    </div>
+
+    <div class="q" id="q1d">
+      <p class="qtext">4 · The owl hoots: <em>"Give a gift TO the stars."</em> Type <span class="latin">stella</span> in the dative plural ("to/for the stars").</p>
+      <div class="typein"><input type="text" aria-label="answer" placeholder="stell…"><button class="check">Check</button></div>
+      <button class="hintbtn">Need a hint?</button><div class="hinttext">Dative plural of the 1st declension ends in <b>-īs</b>.</div>
+      <p class="feedback"></p>
+    </div>
+
+    <div class="q" id="q1e">
+      <p class="qtext">5 · 🎨 The floor tiles have scrambled themselves! Tap a Latin word, then tap its picture, and pair them all up again.</p>
+      <div class="matchgrid" data-game="m1">
+        <div class="matchrow">
+          <button class="mword" data-pair="girl">puella</button>
+          <button class="mword" data-pair="water">aqua</button>
+          <button class="mword" data-pair="star">stella</button>
+          <button class="mword" data-pair="rose">rosa</button>
+          <button class="mword" data-pair="earth">terra</button>
+        </div>
+        <div class="matchrow">
+          <button class="memoji" data-pair="star" aria-label="star">⭐</button>
+          <button class="memoji" data-pair="earth" aria-label="earth">🌍</button>
+          <button class="memoji" data-pair="girl" aria-label="girl">👧</button>
+          <button class="memoji" data-pair="rose" aria-label="rose">🌹</button>
+          <button class="memoji" data-pair="water" aria-label="water">💧</button>
+        </div>
+      </div>
+      <p class="feedback"></p>
+    </div>
+
+    <div class="keybanner" id="key1">The mosaic glows! You found the first key: <span class="numeral">V</span></div>
+    <div class="doorbox" id="door1">
+      <p style="margin-bottom:10px; font-weight:700;">Solve all five puzzles to unlock the library door.</p>
+      <button class="bigbtn" disabled onclick="goTo(2)">Open the door →</button>
+    </div>
+  </section>
+
+  <!-- ROOM 2: BIBLIOTHECA — 2nd declension nouns -->
+  <section class="screen card r2" id="s2">
+    <p class="room-eyebrow">Room II · Bibliothēca</p>
+    <h2>The Library of the Second Declension</h2>
+    <p class="story">Scrolls everywhere! A friendly ghost of a Roman scribe appears. <em>"My friend (<span class="latin">amīcus</span>) hid the key inside a scroll about gifts (<span class="latin">dōna</span>) and wars (<span class="latin">bella</span>). Answer my riddles about -us and -um words."</em></p>
+
+    <div class="q" id="q2a">
+      <p class="qtext">1 · One of these nouns is neuter (an -um word). Which one?</p>
+      <div class="choices">
+        <button class="choice" data-ok="0">amīcus</button>
+        <button class="choice" data-ok="0">puer</button>
+        <button class="choice" data-ok="1">dōnum</button>
+        <button class="choice" data-ok="0">ager</button>
+      </div>
+      <button class="hintbtn">Need a hint?</button><div class="hinttext">2nd declension neuters end in <b>-um</b> in the nominative singular.</div>
+      <p class="feedback"></p>
+    </div>
+
+    <div class="q" id="q2b">
+      <p class="qtext">2 · The scroll's title says "Gifts" — many of them! Type the nominative plural of <span class="latin">dōnum</span>.</p>
+      <div class="typein"><input type="text" aria-label="answer" placeholder="dōn…"><button class="check">Check</button></div>
+      <button class="hintbtn">Need a hint?</button><div class="hinttext">Neuter plurals in the nominative and accusative end in <b>-a</b>.</div>
+      <p class="feedback"></p>
+    </div>
+
+    <div class="q" id="q2c">
+      <p class="qtext">3 · The ghost wants to call out to his friend directly: <em>"O friend!"</em> Type the vocative singular of <span class="latin">amīcus</span>.</p>
+      <div class="typein"><input type="text" aria-label="answer" placeholder="amīc…"><button class="check">Check</button></div>
+      <button class="hintbtn">Need a hint?</button><div class="hinttext">-us words are special: the vocative singular ends in <b>-e</b>. (Think "Et tū, Brūte!")</div>
+      <p class="feedback"></p>
+    </div>
+
+    <div class="q" id="q2d">
+      <p class="qtext">4 · The last scroll is titled <span class="latin">"Liber Bellōrum"</span> — "The Book ___". What does <span class="latin">bellōrum</span> mean?</p>
+      <div class="choices">
+        <button class="choice" data-ok="0">to the wars</button>
+        <button class="choice" data-ok="1">of the wars</button>
+        <button class="choice" data-ok="0">the wars (subject)</button>
+        <button class="choice" data-ok="0">with the war</button>
+      </div>
+      <button class="hintbtn">Need a hint?</button><div class="hinttext"><b>-ōrum</b> is the genitive plural ending: "of the ___s".</div>
+      <p class="feedback"></p>
+    </div>
+
+    <div class="keybanner" id="key2">A scroll unrolls by itself! Second key found: <span class="numeral">III</span></div>
+    <div class="doorbox" id="door2">
+      <p style="margin-bottom:10px; font-weight:700;">Solve all four riddles to unlock the kitchen door.</p>
+      <button class="bigbtn" disabled onclick="goTo(3)">Open the door →</button>
+    </div>
+  </section>
+
+  <!-- ROOM 3: CULINA — 1st conjugation verbs -->
+  <section class="screen card r3" id="s3">
+    <p class="room-eyebrow">Room III · Culīna</p>
+    <h2>The Kitchen of the First Conjugation</h2>
+    <p class="story">Pots bubble on their own! The cook's parrot squawks verbs at you: <em>amō, portō, laudō, vocō!</em> Feed it the right forms of these <b>-āre</b> verbs and it will cough up the key. (Rude, but effective.)</p>
+
+    <div class="q" id="q3a">
+      <p class="qtext">1 · Complete the chant the parrot started: <span class="latin">amō, amās, ___</span> (he/she loves).</p>
+      <div class="typein"><input type="text" aria-label="answer" placeholder="am…"><button class="check">Check</button></div>
+      <button class="hintbtn">Need a hint?</button><div class="hinttext">3rd person singular ends in <b>-t</b>: amō, amās, ama<b>t</b>.</div>
+      <p class="feedback"></p>
+    </div>
+
+    <div class="q" id="q3b">
+      <p class="qtext">2 · You and the parrot lift the heavy pot together: "WE carry!" Type the Latin for "we carry" (from <span class="latin">portāre</span>).</p>
+      <div class="typein"><input type="text" aria-label="answer" placeholder="port…"><button class="check">Check</button></div>
+      <button class="hintbtn">Need a hint?</button><div class="hinttext">"We" forms end in <b>-mus</b>.</div>
+      <p class="feedback"></p>
+    </div>
+
+    <div class="q" id="q3c">
+      <p class="qtext">3 · The parrot screeches <span class="latin">"laudant!"</span> Who is doing the praising?</p>
+      <div class="choices">
+        <button class="choice" data-ok="0">I</button>
+        <button class="choice" data-ok="0">you (one person)</button>
+        <button class="choice" data-ok="0">we</button>
+        <button class="choice" data-ok="1">they</button>
+      </div>
+      <button class="hintbtn">Need a hint?</button><div class="hinttext"><b>-nt</b> at the end means "they".</div>
+      <p class="feedback"></p>
+    </div>
+
+    <div class="q" id="q3d">
+      <p class="qtext">4 · A note on the oven reads: <span class="latin">"Vocātis!"</span> What does it mean?</p>
+      <div class="choices">
+        <button class="choice" data-ok="0">you (one) call</button>
+        <button class="choice" data-ok="1">you all call</button>
+        <button class="choice" data-ok="0">we call</button>
+        <button class="choice" data-ok="0">they call</button>
+      </div>
+      <button class="hintbtn">Need a hint?</button><div class="hinttext"><b>-tis</b> means "you all" (plural you).</div>
+      <p class="feedback"></p>
+    </div>
+
+    <div class="q" id="q3e">
+      <p class="qtext">5 · 🍲 Dessert round! The parrot acts out verbs with its wings. Tap each verb, then tap what it means.</p>
+      <div class="matchgrid" data-game="m3">
+        <div class="matchrow">
+          <button class="mword" data-pair="love">amat</button>
+          <button class="mword" data-pair="call">vocat</button>
+          <button class="mword" data-pair="carry">portat</button>
+          <button class="mword" data-pair="praise">laudat</button>
+          <button class="mword" data-pair="sing">cantat</button>
+        </div>
+        <div class="matchrow">
+          <button class="memoji" data-pair="carry" aria-label="carries">🎒</button>
+          <button class="memoji" data-pair="sing" aria-label="sings">🎶</button>
+          <button class="memoji" data-pair="love" aria-label="loves">❤️</button>
+          <button class="memoji" data-pair="praise" aria-label="praises">👏</button>
+          <button class="memoji" data-pair="call" aria-label="calls">📣</button>
+        </div>
+      </div>
+      <p class="feedback"></p>
+    </div>
+
+    <div class="keybanner" id="key3">The parrot spits out a shiny key! Third key: <span class="numeral">I</span></div>
+    <div class="doorbox" id="door3">
+      <p style="margin-bottom:10px; font-weight:700;">Feed the parrot all five answers to unlock the garden gate.</p>
+      <button class="bigbtn" disabled onclick="goTo(4)">Open the gate →</button>
+    </div>
+  </section>
+
+  <!-- ROOM 4: HORTUS — 2nd conjugation verbs -->
+  <section class="screen card r4" id="s4">
+    <p class="room-eyebrow">Room IV · Hortus</p>
+    <h2>The Garden of the Second Conjugation</h2>
+    <p class="story">A moonlit garden of roses. Statues whisper <b>-ēre</b> verbs: <em>videō, moneō, habeō, teneō…</em> Each statue holds a piece of the last key. Answer them all before the moon sets!</p>
+
+    <div class="q" id="q4a">
+      <p class="qtext">1 · The first statue asks: which infinitive belongs to the SECOND conjugation?</p>
+      <div class="choices">
+        <button class="choice" data-ok="0">amāre</button>
+        <button class="choice" data-ok="1">monēre</button>
+        <button class="choice" data-ok="0">portāre</button>
+        <button class="choice" data-ok="0">laudāre</button>
+      </div>
+      <button class="hintbtn">Need a hint?</button><div class="hinttext">2nd conjugation infinitives end in <b>-ēre</b> (long e), 1st in <b>-āre</b>.</div>
+      <p class="feedback"></p>
+    </div>
+
+    <div class="q" id="q4b">
+      <p class="qtext">2 · Two statues stare at the stars. Type the Latin for "they see" (from <span class="latin">vidēre</span>).</p>
+      <div class="typein"><input type="text" aria-label="answer" placeholder="vid…"><button class="check">Check</button></div>
+      <button class="hintbtn">Need a hint?</button><div class="hinttext">Take the stem <b>vide-</b> and add <b>-nt</b>.</div>
+      <p class="feedback"></p>
+    </div>
+
+    <div class="q" id="q4c">
+      <p class="qtext">3 · A statue proudly declares: <span class="latin">"Habēmus rosās!"</span> What does <span class="latin">habēmus</span> mean?</p>
+      <div class="choices">
+        <button class="choice" data-ok="0">I have</button>
+        <button class="choice" data-ok="0">you have</button>
+        <button class="choice" data-ok="1">we have</button>
+        <button class="choice" data-ok="0">they have</button>
+      </div>
+      <button class="hintbtn">Need a hint?</button><div class="hinttext"><b>-mus</b> = "we", in every conjugation.</div>
+      <p class="feedback"></p>
+    </div>
+
+    <div class="q" id="q4d">
+      <p class="qtext">4 · The last statue hands you the key and says: "YOU hold it now." Type the Latin for "you hold" (one person, from <span class="latin">tenēre</span>).</p>
+      <div class="typein"><input type="text" aria-label="answer" placeholder="ten…"><button class="check">Check</button></div>
+      <button class="hintbtn">Need a hint?</button><div class="hinttext">Stem <b>tene-</b> plus <b>-s</b> for "you" (singular).</div>
+      <p class="feedback"></p>
+    </div>
+
+    <div class="keybanner" id="key4">The statues bow. The fourth key is yours: <span class="numeral">II</span></div>
+    <div class="doorbox" id="door4">
+      <p style="margin-bottom:10px; font-weight:700;">Answer all four statues to reach the Porta Magna.</p>
+      <button class="bigbtn" disabled onclick="goTo(5)">To the great door →</button>
+    </div>
+  </section>
+
+  <!-- ROOM 5: PORTA MAGNA — finale -->
+  <section class="screen card r5" id="s5">
+    <p class="room-eyebrow">Fīnāle · Porta Magna</p>
+    <h2>The Great Door</h2>
+    <p class="story">The bronze doors tower over you. Two final inscriptions must be translated, and then the four numeral keys go into the lock — <b>in the order you found them</b>, written as ordinary digits.</p>
+
+    <div class="q" id="q5a">
+      <p class="qtext">1 · The left inscription: <span class="latin">"Puella aquam portat."</span></p>
+      <div class="choices">
+        <button class="choice" data-ok="0">The girls carry water.</button>
+        <button class="choice" data-ok="1">The girl carries the water.</button>
+        <button class="choice" data-ok="0">The water carries the girl.</button>
+        <button class="choice" data-ok="0">Carry the water, girl!</button>
+      </div>
+      <button class="hintbtn">Need a hint?</button><div class="hinttext"><b>Puella</b> is the subject (nominative), <b>aquam</b> the object (-am, accusative), <b>portat</b> = he/she carries.</div>
+      <p class="feedback"></p>
+    </div>
+
+    <div class="q" id="q5b">
+      <p class="qtext">2 · The right inscription: <span class="latin">"Amīcī dōna vident."</span></p>
+      <div class="choices">
+        <button class="choice" data-ok="0">The friend sees the gift.</button>
+        <button class="choice" data-ok="0">The gifts see the friends.</button>
+        <button class="choice" data-ok="1">The friends see the gifts.</button>
+        <button class="choice" data-ok="0">We see our friends' gifts.</button>
+      </div>
+      <button class="hintbtn">Need a hint?</button><div class="hinttext"><b>Amīcī</b> = friends (plural subject), <b>dōna</b> = gifts (neuter plural object), <b>vident</b> = they see.</div>
+      <p class="feedback"></p>
+    </div>
+
+    <div class="q" id="q5c">
+      <p class="qtext">3 · Now the lock. Enter your four numeral keys as digits, in the order you earned them (Ātrium → Bibliothēca → Culīna → Hortus).</p>
+      <div class="final-code">
+        <input type="text" inputmode="numeric" maxlength="1" aria-label="digit 1">
+        <input type="text" inputmode="numeric" maxlength="1" aria-label="digit 2">
+        <input type="text" inputmode="numeric" maxlength="1" aria-label="digit 3">
+        <input type="text" inputmode="numeric" maxlength="1" aria-label="digit 4">
+      </div>
+      <div style="text-align:center;"><button class="check" id="codebtn">Turn the key</button></div>
+      <button class="hintbtn">Need a hint?</button><div class="hinttext">Roman numerals: V = 5, III = 3, I = 1, II = 2. Your keys are shown at the top of the screen.</div>
+      <p class="feedback" style="text-align:center;"></p>
+    </div>
+  </section>
+
+  <!-- WIN -->
+  <section class="screen" id="s6">
+    <div class="cert">
+      <svg class="owl-svg" viewBox="0 0 120 130" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <ellipse cx="60" cy="78" rx="42" ry="46" fill="#b9a68f"/>
+        <ellipse cx="60" cy="90" rx="27" ry="30" fill="#e8ddcf"/>
+        <path d="M46 82 l7 6 7-6 M60 82 l7 6 7-6 M53 94 l7 6 7-6" stroke="#c9b8a2" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <ellipse cx="20" cy="70" rx="12" ry="26" fill="#a08d76" transform="rotate(140 20 70)"/>
+        <ellipse cx="100" cy="70" rx="12" ry="26" fill="#a08d76" transform="rotate(-140 100 70)"/>
+        <path d="M28 32 q-4-14 8-16 q-2 8 4 12z" fill="#a08d76"/>
+        <path d="M92 32 q4-14 -8-16 q2 8 -4 12z" fill="#a08d76"/>
+        <circle cx="60" cy="42" r="32" fill="#b9a68f"/>
+        <circle cx="47" cy="42" r="14" fill="#fff"/><circle cx="73" cy="42" r="14" fill="#fff"/>
+        <path d="M39 40 q8 8 16 0" stroke="#08314a" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <path d="M65 40 q8 8 16 0" stroke="#08314a" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <path d="M60 48 l-6 7 q6 6 12 0z" fill="#e8913c"/>
+        <path d="M32 26 q10-10 28-11 q18 1 28 11" stroke="#c9a86a" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <ellipse cx="34" cy="24" rx="4" ry="2.4" fill="#c9a86a" transform="rotate(-35 34 24)"/>
+        <ellipse cx="44" cy="18.5" rx="4" ry="2.4" fill="#c9a86a" transform="rotate(-20 44 18.5)"/>
+        <ellipse cx="86" cy="24" rx="4" ry="2.4" fill="#c9a86a" transform="rotate(35 86 24)"/>
+        <ellipse cx="76" cy="18.5" rx="4" ry="2.4" fill="#c9a86a" transform="rotate(20 76 18.5)"/>
+        <path d="M46 122 l-4 6 M46 122 l0 7 M46 122 l4 6" stroke="#e8913c" stroke-width="3.4" stroke-linecap="round"/>
+        <path d="M74 122 l-4 6 M74 122 l0 7 M74 122 l4 6" stroke="#e8913c" stroke-width="3.4" stroke-linecap="round"/>
+      </svg>
+      <div class="laurel">🏛️🌿🏛️</div>
+      <h2>Lībera es!</h2>
+      <p style="font-weight:700; color:#6d5b87; margin-top:6px;">The great doors swing open. You have escaped the Vīlla Mystēriōrum!</p>
+      <p class="time" id="finaltime"></p>
+      <p style="color:#5c5570; line-height:1.6; max-width:480px; margin:0 auto;">
+        You proved your mastery of 1st and 2nd declension nouns and 1st and 2nd conjugation verbs.
+        The owl salutes you: <em>Bene fēcistī, discipula!</em>
+      </p>
+      <div style="margin-top:20px;"><button class="bigbtn" onclick="location.reload()">Play again</button></div>
+    </div>
+  </section>
+
+  <footer>❀ Glossomathia · Play · Listen · Learn ❀</footer>
+</div>
+
+<script>
+  // ---------- helpers ----------
+  const norm = s => s.toLowerCase().trim().replace(/\s+/g,' ')
+    .replace(/ā/g,'a').replace(/ē/g,'e').replace(/ī/g,'i').replace(/ō/g,'o').replace(/ū/g,'u').replace(/ȳ/g,'y');
+
+  const answers = {
+    q1a:['puellae'], q1c:['terra'], q1d:['stellis'],
+    q2b:['dona'], q2c:['amice'],
+    q3a:['amat'], q3b:['portamus'],
+    q4b:['vident'], q4d:['tenes']
+  };
+  const rooms = {1:['q1a','q1b','q1c','q1d','q1e'],2:['q2a','q2b','q2c','q2d'],3:['q3a','q3b','q3c','q3d','q3e'],4:['q4a','q4b','q4c','q4d']};
+  const solved = new Set();
+  const praise = ['Optimē! ✨','Euge! 🌿','Bene! 💜','Rēctē! ⭐','Fantastic! 🎉'];
+  const nudge  = ['Not quite — try again!','Almost! Check the ending.','Hmm, Bubō shakes his head. Try again!','Close! Look at the hint if you need it.'];
+
+  // ---------- Bubō the owl ----------
+  const owlHappy = ['Hoot! Optimē! 🎉','Bubō approves! 💜','Euge, discipula! ⭐','Sīc! That is it! 🌿','My feathers are impressed! ✨'];
+  const owlSad   = ['Hoo-hmm… try once more!','Not yet, little Roman!','Bubō believes in you! 🌿','So close I can taste it. And I eat mice.'];
+  const owlKey   = ['A KEY! Hoot hoot! 🗝️','Splendid! On to the next room! 🎉','You are unstoppable! 🗝️✨'];
+  let owlTimer = null;
+  function owlSay(msg, jump){
+    const b = document.getElementById('owlbubble');
+    const o = document.getElementById('owlsvg');
+    b.textContent = msg; b.classList.add('show');
+    if(jump){ o.classList.remove('happy'); void o.offsetWidth; o.classList.add('happy'); }
+    clearTimeout(owlTimer);
+    owlTimer = setTimeout(()=>b.classList.remove('show'), 3200);
+  }
+  setTimeout(()=>owlSay('Salvē! I am Bubō, guardian of the villa. 🌿'), 800);
+
+  // ---------- timer ----------
+  let secs = 0, tint = null;
+  function startGame(){
+    document.getElementById('s0').classList.remove('active');
+    document.getElementById('s1').classList.add('active');
+    document.getElementById('hud').style.display = 'flex';
+    tint = setInterval(()=>{ secs++;
+      const m = String(Math.floor(secs/60)).padStart(2,'0'), s = String(secs%60).padStart(2,'0');
+      document.getElementById('timer').textContent = m+':'+s;
+    },1000);
+    window.scrollTo({top:0});
+  }
+
+  function goTo(n){
+    document.querySelectorAll('.screen').forEach(el=>el.classList.remove('active'));
+    document.getElementById('s'+n).classList.add('active');
+    document.getElementById('pfill').style.width = ((n-1)/5*100)+'%';
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  function markSolved(qid){
+    if(solved.has(qid)) return;
+    solved.add(qid);
+    const q = document.getElementById(qid);
+    q.classList.add('solved');
+    const fb = q.querySelector('.feedback');
+    fb.textContent = praise[Math.floor(Math.random()*praise.length)];
+    fb.className = 'feedback good';
+    let gotKey = false;
+    // room complete?
+    for(const [rn, qs] of Object.entries(rooms)){
+      if(qs.includes(qid) && qs.every(id=>solved.has(id))){
+        const numerals = {1:'V',2:'III',3:'I',4:'II'};
+        document.getElementById('key'+rn).classList.add('show');
+        const slot = document.getElementById('k'+rn);
+        slot.textContent = numerals[rn]; slot.classList.add('filled');
+        const door = document.getElementById('door'+rn);
+        door.classList.add('open');
+        door.querySelector('.bigbtn').disabled = false;
+        gotKey = true;
+        miniBurst();
+      }
+    }
+    owlSay(gotKey ? owlKey[Math.floor(Math.random()*owlKey.length)]
+                  : owlHappy[Math.floor(Math.random()*owlHappy.length)], true);
+  }
+
+  function wrongAnswer(q){
+    const fb = q.querySelector('.feedback');
+    fb.textContent = nudge[Math.floor(Math.random()*nudge.length)];
+    fb.className = 'feedback bad';
+    owlSay(owlSad[Math.floor(Math.random()*owlSad.length)], false);
+  }
+
+  // ---------- wire up type-in questions ----------
+  document.querySelectorAll('.q').forEach(q=>{
+    const qid = q.id;
+    const input = q.querySelector('.typein input');
+    const btn = q.querySelector('.typein .check');
+    if(input && btn && answers[qid]){
+      const tryIt = ()=>{
+        if(answers[qid].includes(norm(input.value))) markSolved(qid);
+        else wrongAnswer(q);
+      };
+      btn.addEventListener('click', tryIt);
+      input.addEventListener('keydown', e=>{ if(e.key==='Enter') tryIt(); });
+    }
+    // multiple choice
+    q.querySelectorAll('button.choice').forEach(c=>{
+      c.addEventListener('click', ()=>{
+        if(solved.has(qid)) return;
+        if(c.dataset.ok==='1'){ c.classList.add('correct'); markSolved(qid); }
+        else { c.classList.add('wrong'); wrongAnswer(q); setTimeout(()=>c.classList.remove('wrong'),600); }
+      });
+    });
+    // hints
+    const hb = q.querySelector('.hintbtn');
+    if(hb) hb.addEventListener('click', ()=> q.querySelector('.hinttext').classList.toggle('show'));
+  });
+
+  // ---------- final code ----------
+  const codeInputs = document.querySelectorAll('.final-code input');
+  codeInputs.forEach((inp,i)=>{
+    inp.addEventListener('input', ()=>{ if(inp.value && i<3) codeInputs[i+1].focus(); });
+  });
+  document.getElementById('codebtn').addEventListener('click', ()=>{
+    const q = document.getElementById('q5c');
+    const fb = q.querySelector('.feedback');
+    if(!solved.has('q5a') || !solved.has('q5b')){
+      fb.textContent = 'Translate both inscriptions first!'; fb.className='feedback bad'; return;
+    }
+    const code = Array.from(codeInputs).map(i=>i.value.trim()).join('');
+    if(code === '5312'){
+      markSolved('q5c');
+      clearInterval(tint);
+      const m = Math.floor(secs/60), s = secs%60;
+      document.getElementById('finaltime').textContent = 'Escape time: '+m+' min '+s+' sec';
+      document.getElementById('pfill').style.width = '100%';
+      goTo(6);
+      celebrate();
+    } else { fb.textContent='The lock will not turn. Check your numerals!'; fb.className='feedback bad'; }
+  });
+
+  // ---------- emoji match games ----------
+  document.querySelectorAll('.matchgrid').forEach(grid=>{
+    const q = grid.closest('.q');
+    const qid = q.id;
+    let pickedWord = null, pickedEmoji = null, matched = 0;
+    const total = grid.querySelectorAll('.mword').length;
+    function clearPicks(){
+      grid.querySelectorAll('.picked').forEach(b=>b.classList.remove('picked'));
+      pickedWord = pickedEmoji = null;
+    }
+    function judge(){
+      if(!pickedWord || !pickedEmoji) return;
+      if(pickedWord.dataset.pair === pickedEmoji.dataset.pair){
+        pickedWord.classList.remove('picked'); pickedEmoji.classList.remove('picked');
+        pickedWord.classList.add('matched'); pickedEmoji.classList.add('matched');
+        pickedWord = pickedEmoji = null;
+        matched++;
+        if(matched === total){ markSolved(qid); }
+        else {
+          const fb = q.querySelector('.feedback');
+          fb.textContent = 'Match! '+(total-matched)+' to go 🎯';
+          fb.className = 'feedback good';
+        }
+      } else {
+        const w = pickedWord, e = pickedEmoji;
+        w.classList.add('nope'); e.classList.add('nope');
+        setTimeout(()=>{ w.classList.remove('nope'); e.classList.remove('nope'); }, 500);
+        clearPicks();
+        wrongAnswer(q);
+      }
+    }
+    grid.querySelectorAll('.mword').forEach(b=>b.addEventListener('click', ()=>{
+      if(b.classList.contains('matched')) return;
+      if(pickedWord) pickedWord.classList.remove('picked');
+      pickedWord = b; b.classList.add('picked'); judge();
+    }));
+    grid.querySelectorAll('.memoji').forEach(b=>b.addEventListener('click', ()=>{
+      if(b.classList.contains('matched')) return;
+      if(pickedEmoji) pickedEmoji.classList.remove('picked');
+      pickedEmoji = b; b.classList.add('picked'); judge();
+    }));
+  });
+
+  // ---------- confetti ----------
+  function dropConfetti(count){
+    const bits = ['💜','🌿','⭐','🌸','💙','💚','✨','🦉','🌹','🎉'];
+    for(let i=0;i<count;i++){
+      const el = document.createElement('div');
+      el.className='confetti'; el.textContent = bits[Math.floor(Math.random()*bits.length)];
+      el.style.left = Math.random()*100+'vw';
+      el.style.fontSize = (1+Math.random()*1.2)+'rem';
+      el.style.animationDuration = (2.2+Math.random()*2.4)+'s';
+      el.style.animationDelay = (Math.random()*0.9)+'s';
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(),6000);
+    }
+  }
+  function miniBurst(){ dropConfetti(16); }
+  function celebrate(){
+    owlSay('LĪBERA ES! Hoot hoot hooray! 🎉🗝️', true);
+    dropConfetti(70);
+    setTimeout(()=>dropConfetti(50), 1200);
+    setTimeout(()=>dropConfetti(50), 2600);
+  }
+</script>
+</body>
+</html>
