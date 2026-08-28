@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Domus et Deī · A Glossomathia Latin Quiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --purple:#8E7CC3; --purple-mid:#a88bcf; --purple-deep:#6d5b87; --purple-bg:#f7eef9;
+    --blue:#7aa6b9; --blue-mid:#5e95ab; --blue-deep:#3f6d82; --blue-bg:#e9f1f7;
+    --green:#6fae84; --green-mid:#5a9670; --green-deep:#3f7a54; --green-bg:#eaf6ee;
+    --rose:#c98bb0; --rose-mid:#b87aa0; --rose-deep:#9c5980; --rose-bg:#fbeef5;
+    --plum:#4a4458; --lav:#ece3f7; --lav-pale:#f7f2fc; --gold:#c9a86a; --ink:#4a4458;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Nunito',sans-serif; color:var(--ink);
+    background:linear-gradient(160deg,#f7f2fc 0%, #fbeef5 35%, #e9f1f7 70%, #eaf6ee 100%);
+    min-height:100vh; padding:24px 14px 60px;
+  }
+  .wrap{max-width:680px; margin:0 auto;}
+  h1,h2{font-family:'Cormorant Garamond',serif;}
+  h1{font-size:clamp(2rem,6vw,3rem); font-weight:700; color:var(--purple-deep); text-align:center; line-height:1.1;}
+  .subtitle{text-align:center; color:var(--purple-mid); font-weight:700; letter-spacing:.14em; text-transform:uppercase; font-size:.78rem; margin-top:8px;}
+
+  .hud{display:flex; align-items:center; gap:14px; background:#ffffffcc; border:2px solid var(--lav);
+    border-radius:18px; padding:10px 16px; margin:20px 0 18px; position:sticky; top:8px; z-index:5;}
+  .score{font-weight:800; color:var(--purple-deep); white-space:nowrap;}
+  .progress-track{height:8px; background:var(--lav-pale); border-radius:99px; overflow:hidden; flex:1;}
+  .progress-fill{height:100%; width:0%; border-radius:99px;
+    background:linear-gradient(90deg,var(--blue),var(--green),var(--purple),var(--rose)); transition:width .4s ease;}
+  .qcount{font-weight:800; color:var(--purple-mid); font-size:.85rem; white-space:nowrap;}
+
+  .card{background:#fff; border-radius:24px; padding:28px 26px; box-shadow:0 10px 30px rgba(142,124,195,.14);
+    border:2px solid var(--lav); animation:pop .35s ease;}
+  @keyframes pop{from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:none;}}
+  @media (prefers-reduced-motion:reduce){ *{animation:none !important; transition:none !important;} }
+
+  .part-eyebrow{font-size:.75rem; font-weight:800; letter-spacing:.18em; text-transform:uppercase; margin-bottom:6px;}
+  .card h2{font-size:clamp(1.4rem,5vw,2rem); font-weight:700; margin-bottom:12px;}
+  .qtext{font-weight:700; font-size:1.08rem; line-height:1.55; margin-bottom:16px;}
+  .qtext .latin{font-family:'Cormorant Garamond',serif; font-size:1.25em; font-weight:600;}
+  .qemoji{font-size:2.4rem; text-align:center; margin-bottom:10px;}
+
+  .choices{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  @media(max-width:480px){.choices{grid-template-columns:1fr;}}
+  button.choice{font-family:'Nunito',sans-serif; font-weight:700; font-size:1rem; cursor:pointer;
+    background:#fff; border:2px solid #ddd3ef; border-radius:14px; padding:13px 12px; color:var(--ink);
+    transition:transform .12s ease, box-shadow .12s ease;}
+  button.choice:hover{transform:translateY(-2px); box-shadow:0 6px 14px rgba(74,68,88,.12);}
+  button.choice:focus-visible,.bigbtn:focus-visible, button.mword:focus-visible, button.memoji:focus-visible{
+    outline:3px solid var(--purple); outline-offset:2px;}
+  button.choice.correct{background:var(--green-bg); border-color:var(--green); color:var(--green-deep);}
+  button.choice.wrong{background:var(--rose-bg); border-color:var(--rose); color:var(--rose-deep); animation:shake .3s;}
+  button.choice:disabled{cursor:default;}
+  @keyframes shake{25%{transform:translateX(-4px);}75%{transform:translateX(4px);}}
+
+  .explain{display:none; margin-top:14px; border-radius:14px; padding:13px 15px; font-size:.95rem; line-height:1.5; font-weight:600;}
+  .explain.show{display:block; animation:pop .3s ease;}
+  .explain.good{background:var(--green-bg); color:var(--green-deep);}
+  .explain.bad{background:var(--rose-bg); color:var(--rose-deep);}
+
+  .navrow{text-align:center; margin-top:18px;}
+  .bigbtn{font-family:'Nunito',sans-serif; font-weight:800; font-size:1.05rem; cursor:pointer;
+    border:none; border-radius:16px; padding:13px 30px; color:#fff; background:var(--purple);
+    box-shadow:0 8px 18px rgba(142,124,195,.35); transition:transform .12s ease;}
+  .bigbtn:hover{transform:translateY(-2px);}
+  .bigbtn:disabled{background:#cfc6e4; box-shadow:none; cursor:not-allowed; transform:none;}
+
+  /* match game */
+  .matchgrid{display:flex; flex-direction:column; gap:12px;}
+  .matchrow{display:flex; flex-wrap:wrap; gap:10px; justify-content:center;}
+  button.mword, button.memoji{font-family:'Nunito',sans-serif; cursor:pointer; border-radius:14px;
+    border:2px solid #ddd3ef; background:#fff; transition:transform .12s ease;}
+  button.mword{font-family:'Cormorant Garamond',serif; font-size:1.2rem; font-weight:700; padding:9px 15px; color:var(--ink);}
+  button.memoji{font-size:1.05rem; font-weight:800; padding:10px 14px; color:var(--ink);}
+  button.mword:hover, button.memoji:hover{transform:translateY(-2px);}
+  button.mword.picked, button.memoji.picked{border-color:var(--purple); background:var(--lav-pale);}
+  button.mword.matched, button.memoji.matched{border-color:var(--green); background:var(--green-bg); color:var(--green-deep); pointer-events:none; animation:matchpop .35s ease;}
+  @keyframes matchpop{40%{transform:scale(1.12);}}
+  button.mword.nope, button.memoji.nope{border-color:var(--rose); background:var(--rose-bg); animation:shake .3s;}
+  .matchnote{margin-top:12px; font-weight:700; font-size:.9rem; min-height:1.2em; text-align:center;}
+  .matchnote.good{color:var(--green-deep);} .matchnote.bad{color:var(--rose-deep);}
+
+  /* part color skins */
+  .p-house .part-eyebrow, .p-house h2{color:var(--blue-deep);}
+  .p-gods .part-eyebrow, .p-gods h2{color:var(--purple-deep);}
+
+  .cert{text-align:center; padding:34px 24px; border-radius:24px;
+    background:linear-gradient(150deg,#f7f2fc,#fbeef5 55%,#eaf6ee); border:3px solid var(--gold);}
+  .cert h2{color:var(--purple-deep); font-size:2.2rem;}
+  .cert .bigscore{font-family:'Cormorant Garamond',serif; font-size:3.4rem; font-weight:700; color:var(--green-deep); margin:8px 0 2px;}
+  .cert .rank{font-weight:800; font-size:1.2rem; color:var(--rose-deep); margin-bottom:10px;}
+  .confetti{position:fixed; top:-10px; font-size:1.3rem; animation:fall linear forwards; z-index:50; pointer-events:none;}
+  @keyframes fall{to{transform:translateY(105vh) rotate(540deg); opacity:.7;}}
+
+  footer{text-align:center; margin-top:34px; color:#b3a7c9; font-family:'Cormorant Garamond',serif; font-size:1.05rem;}
+
+  .owl-fixed{position:fixed; right:14px; bottom:14px; z-index:40; display:flex; flex-direction:column; align-items:flex-end; pointer-events:none;}
+  .owl-bubble{background:#fff; border:2px solid var(--lav); border-radius:16px 16px 4px 16px; padding:9px 14px;
+    font-weight:800; font-size:.9rem; color:var(--purple-deep); box-shadow:0 6px 16px rgba(142,124,195,.22);
+    margin-bottom:6px; max-width:210px; opacity:0; transform:translateY(6px); transition:opacity .25s, transform .25s;}
+  .owl-bubble.show{opacity:1; transform:none;}
+  .owl-svg{width:74px; height:auto; filter:drop-shadow(0 5px 10px rgba(74,68,88,.2)); animation:bob 3.2s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+  .owl-svg.happy{animation:owljump .55s ease;}
+  @keyframes owljump{0%,100%{transform:translateY(0);}30%{transform:translateY(-16px) rotate(-6deg);}60%{transform:translateY(-8px) rotate(6deg);}}
+  .cert .owl-svg{width:104px;}
+  .screen{display:none;} .screen.active{display:block;}
+</style>
+</head>
+<body>
+<div class="owl-fixed" aria-hidden="true">
+  <div class="owl-bubble" id="owlbubble"></div>
+  <svg class="owl-svg" id="owlsvg" viewBox="0 0 120 130" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="60" cy="78" rx="42" ry="46" fill="#b9a68f"/>
+    <ellipse cx="60" cy="90" rx="27" ry="30" fill="#e8ddcf"/>
+    <path d="M46 82 l7 6 7-6 M60 82 l7 6 7-6 M53 94 l7 6 7-6" stroke="#c9b8a2" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <ellipse cx="20" cy="82" rx="12" ry="26" fill="#a08d76" transform="rotate(12 20 82)"/>
+    <ellipse cx="100" cy="82" rx="12" ry="26" fill="#a08d76" transform="rotate(-12 100 82)"/>
+    <path d="M28 32 q-4-14 8-16 q-2 8 4 12z" fill="#a08d76"/>
+    <path d="M92 32 q4-14 -8-16 q2 8 -4 12z" fill="#a08d76"/>
+    <circle cx="60" cy="42" r="32" fill="#b9a68f"/>
+    <circle cx="47" cy="42" r="14" fill="#fff"/><circle cx="73" cy="42" r="14" fill="#fff"/>
+    <circle cx="47" cy="43" r="8" fill="#08314a"/><circle cx="73" cy="43" r="8" fill="#08314a"/>
+    <circle cx="50" cy="40" r="2.6" fill="#fff"/><circle cx="76" cy="40" r="2.6" fill="#fff"/>
+    <path d="M60 48 l-6 7 q6 6 12 0z" fill="#e8913c"/>
+    <path d="M32 26 q10-10 28-11 q18 1 28 11" stroke="#c9a86a" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <ellipse cx="34" cy="24" rx="4" ry="2.4" fill="#c9a86a" transform="rotate(-35 34 24)"/>
+    <ellipse cx="44" cy="18.5" rx="4" ry="2.4" fill="#c9a86a" transform="rotate(-20 44 18.5)"/>
+    <ellipse cx="86" cy="24" rx="4" ry="2.4" fill="#c9a86a" transform="rotate(35 86 24)"/>
+    <ellipse cx="76" cy="18.5" rx="4" ry="2.4" fill="#c9a86a" transform="rotate(20 76 18.5)"/>
+    <path d="M46 122 l-4 6 M46 122 l0 7 M46 122 l4 6" stroke="#e8913c" stroke-width="3.4" stroke-linecap="round"/>
+    <path d="M74 122 l-4 6 M74 122 l0 7 M74 122 l4 6" stroke="#e8913c" stroke-width="3.4" stroke-linecap="round"/>
+  </svg>
+</div>
+
+<div class="wrap">
+  <h1>Domus et Deī</h1>
+  <p class="subtitle">🌿 The House & The Gods · A Glossomathia Quiz 🌿</p>
+
+  <div class="hud" id="hud" style="display:none;">
+    <div class="score" id="scorebox">⭐ 0</div>
+    <div class="progress-track"><div class="progress-fill" id="pfill"></div></div>
+    <div class="qcount" id="qcount"></div>
+  </div>
+
+  <!-- intro -->
+  <section class="screen active card p-house" id="intro">
+    <p class="part-eyebrow">Salvē iterum!</p>
+    <h2>Bubō Has Two More Challenges…</h2>
+    <p style="line-height:1.65; color:#5c5570; margin-bottom:18px;">
+      You escaped the villa — but do you remember your way around it? And do you know the gods
+      who watched over every Roman home? Bubō the owl has prepared <b>14 questions</b> in two parts:
+      <b>Pars I · The Roman House</b> and <b>Pars II · Roman vs Greek Gods</b>.
+      <br><br>
+      Each question gives one chance to earn a star. Answer carefully — Bubō is watching! 🌿
+    </p>
+    <div class="navrow"><button class="bigbtn" onclick="startQuiz()">Begin the quiz</button></div>
+  </section>
+
+  <!-- question container -->
+  <section class="screen card" id="qcard">
+    <p class="part-eyebrow" id="qeyebrow"></p>
+    <div class="qemoji" id="qemoji"></div>
+    <p class="qtext" id="qtext"></p>
+    <div class="choices" id="qchoices"></div>
+    <div class="matchgrid" id="qmatch" style="display:none;"></div>
+    <p class="matchnote" id="matchnote"></p>
+    <div class="explain" id="qexplain"></div>
+    <div class="navrow"><button class="bigbtn" id="nextbtn" disabled onclick="nextQ()">Next →</button></div>
+  </section>
+
+  <!-- results -->
+  <section class="screen" id="results">
+    <div class="cert">
+      <svg class="owl-svg" viewBox="0 0 120 130" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <ellipse cx="60" cy="78" rx="42" ry="46" fill="#b9a68f"/>
+        <ellipse cx="60" cy="90" rx="27" ry="30" fill="#e8ddcf"/>
+        <path d="M46 82 l7 6 7-6 M60 82 l7 6 7-6 M53 94 l7 6 7-6" stroke="#c9b8a2" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <ellipse cx="20" cy="70" rx="12" ry="26" fill="#a08d76" transform="rotate(140 20 70)"/>
+        <ellipse cx="100" cy="70" rx="12" ry="26" fill="#a08d76" transform="rotate(-140 100 70)"/>
+        <path d="M28 32 q-4-14 8-16 q-2 8 4 12z" fill="#a08d76"/>
+        <path d="M92 32 q4-14 -8-16 q2 8 -4 12z" fill="#a08d76"/>
+        <circle cx="60" cy="42" r="32" fill="#b9a68f"/>
+        <circle cx="47" cy="42" r="14" fill="#fff"/><circle cx="73" cy="42" r="14" fill="#fff"/>
+        <path d="M39 40 q8 8 16 0" stroke="#08314a" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <path d="M65 40 q8 8 16 0" stroke="#08314a" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <path d="M60 48 l-6 7 q6 6 12 0z" fill="#e8913c"/>
+        <path d="M32 26 q10-10 28-11 q18 1 28 11" stroke="#c9a86a" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <ellipse cx="34" cy="24" rx="4" ry="2.4" fill="#c9a86a" transform="rotate(-35 34 24)"/>
+        <ellipse cx="44" cy="18.5" rx="4" ry="2.4" fill="#c9a86a" transform="rotate(-20 44 18.5)"/>
+        <ellipse cx="86" cy="24" rx="4" ry="2.4" fill="#c9a86a" transform="rotate(35 86 24)"/>
+        <ellipse cx="76" cy="18.5" rx="4" ry="2.4" fill="#c9a86a" transform="rotate(20 76 18.5)"/>
+        <path d="M46 122 l-4 6 M46 122 l0 7 M46 122 l4 6" stroke="#e8913c" stroke-width="3.4" stroke-linecap="round"/>
+        <path d="M74 122 l-4 6 M74 122 l0 7 M74 122 l4 6" stroke="#e8913c" stroke-width="3.4" stroke-linecap="round"/>
+      </svg>
+      <h2>Quiz complete!</h2>
+      <p class="bigscore" id="finalscore"></p>
+      <p class="rank" id="finalrank"></p>
+      <p style="color:#5c5570; line-height:1.6; max-width:440px; margin:0 auto;" id="finalmsg"></p>
+      <div style="margin-top:20px;"><button class="bigbtn" onclick="location.reload()">Try again</button></div>
+    </div>
+  </section>
+
+  <footer>❀ Glossomathia · Play · Listen · Learn ❀</footer>
+</div>
+
+<script>
+// ---------- questions ----------
+const QS = [
+ // PARS I — the Roman house
+ {part:'house', emoji:'🏛️', q:'You step through the front door of a Roman house into a grand hall with an open roof, where guests were greeted. What is this room called?',
+  choices:['ātrium','culīna','hortus','cubiculum'], ok:0,
+  good:'Rēctē! The ātrium was the heart of the house — grand, open, and made to impress visitors.',
+  bad:'It is the ātrium — the grand entrance hall with the open roof, where guests were greeted.'},
+ {part:'house', emoji:'🌧️', q:'Rain falls through the open roof of the ātrium into a shallow pool in the floor. What is that pool called?',
+  choices:['triclīnium','impluvium','tablīnum','vestibulum'], ok:1,
+  good:'Optimē! The impluvium collected rainwater — the Roman version of running water.',
+  bad:'That pool is the impluvium — it collected rainwater falling through the roof opening.'},
+ {part:'house', emoji:'🍇', q:'Dinner time! Romans ate their main meal lying on couches, three to a side. In which room?',
+  choices:['bibliothēca','culīna','triclīnium','peristȳlium'], ok:2,
+  good:'Euge! The triclīnium — literally the "three-couch room" — was the dining room.',
+  bad:'Dinner happened in the triclīnium — the "three-couch room" where Romans reclined to eat.'},
+ {part:'house', emoji:'📜', q:'The pater familiās (father of the household) received clients and kept his documents in his study. What was it called?',
+  choices:['tablīnum','impluvium','iānua','ātrium'], ok:0,
+  good:'Bene! The tablīnum was the office-study, right between the ātrium and the garden.',
+  bad:'The study was the tablīnum — the father\u2019s office between the ātrium and the garden.'},
+ {part:'house', emoji:'⛲', q:'Behind the house lies a beautiful garden courtyard surrounded by columns. Its name?',
+  choices:['culīna','cubiculum','vestibulum','peristȳlium'], ok:3,
+  good:'Fantastic! The peristȳlium — a colonnaded garden, the family\u2019s peaceful open-air retreat.',
+  bad:'That is the peristȳlium — the colonnaded garden courtyard at the back of the house.'},
+ {part:'house', match:true, title:'Match each room to its meaning!',
+  pairs:[['culīna','kitchen 🍲'],['cubiculum','bedroom 🛏️'],['bibliothēca','library 📚'],['iānua','front door 🚪'],['hortus','garden 🌿']]},
+
+ // PARS II — Roman vs Greek gods
+ {part:'gods', emoji:'⚡', q:'The king of the gods hurls thunderbolts. The Greeks call him Zeus — what do the Romans call him?',
+  choices:['Mārs','Iuppiter','Neptūnus','Mercurius'], ok:1,
+  good:'Rēctē! Iuppiter (Jupiter) is the Roman Zeus — king of gods and sky.',
+  bad:'The Romans call him Iuppiter (Jupiter) — king of the gods and lord of the sky.'},
+ {part:'gods', emoji:'🌊', q:'Neptūnus rules the sea with his trident. Which Greek god is he?',
+  choices:['Poseidōn','Apollō','Hermēs','Hādēs'], ok:0,
+  good:'Optimē! Neptune and Poseidon are the same sea god with two passports.',
+  bad:'Neptūnus = Poseidōn, the Greek god of the sea and earthquakes.'},
+ {part:'gods', emoji:'🦉', q:'Bubō\u2019s favorite! The goddess of wisdom, whose bird is the owl, is Minerva in Rome. Her Greek name?',
+  choices:['Hēra','Aphrodītē','Athēna','Artemis'], ok:2,
+  good:'Euge! Minerva = Athena, goddess of wisdom — and patroness of owls like me!',
+  bad:'Minerva is Athēna — goddess of wisdom, crafts, and (most importantly) owls.'},
+ {part:'gods', emoji:'💘', q:'The goddess of love and beauty is Venus in Rome. What do the Greeks call her?',
+  choices:['Aphrodītē','Dēmētēr','Hestia','Hēra'], ok:0,
+  good:'Bene! Venus = Aphrodite. Her son Cupid is the Greek Eros!',
+  bad:'Venus is Aphrodītē, the Greek goddess of love and beauty.'},
+ {part:'gods', emoji:'⚔️', q:'The fierce god of war is Ares in Greece. His Roman name — which also names a planet and a month?',
+  choices:['Vulcānus','Sāturnus','Iānus','Mārs'], ok:3,
+  good:'Rēctē! Mārs = Ares. March (Mārtius) and the red planet are both named after him.',
+  bad:'He is Mārs — the Roman Ares. The month of March and the planet Mars carry his name.'},
+ {part:'gods', emoji:'👟', q:'The speedy messenger god with winged sandals is Hermes in Greece. In Rome he is…?',
+  choices:['Mercurius','Bacchus','Plūtō','Apollō'], ok:0,
+  good:'Fantastic! Mercurius = Hermes, the fastest delivery service on Olympus.',
+  bad:'The Roman messenger is Mercurius — Greek Hermes, complete with winged sandals.'},
+ {part:'gods', emoji:'🎭', q:'One god kept the SAME name in both Rome and Greece — the god of music, poetry, and the sun. Who?',
+  choices:['Apollō','Iuppiter','Hēphaestus','Dionȳsus'], ok:0,
+  good:'Optimē! Apollo was so cool that even the Romans didn\u2019t rename him.',
+  bad:'It is Apollō — the one Olympian whose name the Romans kept exactly as it was.'},
+ {part:'gods', match:true, title:'Grand finale! Match each Roman god to their Greek twin.',
+  pairs:[['Iūnō','Hēra 👑'],['Diāna','Artemis 🏹'],['Vulcānus','Hēphaestus 🔨'],['Cerēs','Dēmētēr 🌾'],['Bacchus','Dionȳsus 🍇']]},
+];
+
+// ---------- state ----------
+let idx = -1, score = 0;
+const total = QS.length;
+
+const owlHappy = ['Hoot! Optimē! 🎉','Bubō approves! 💜','Euge! ⭐','Sīc! Wonderful! 🌿','My feathers are impressed! ✨'];
+const owlSad = ['Hoo-hmm… now you know it!','Every owl misses a mouse sometimes 🌿','Remember it for next time!','Bubō still believes in you!'];
+let owlTimer = null;
+function owlSay(msg, jump){
+  const b = document.getElementById('owlbubble'), o = document.getElementById('owlsvg');
+  b.textContent = msg; b.classList.add('show');
+  if(jump){ o.classList.remove('happy'); void o.offsetWidth; o.classList.add('happy'); }
+  clearTimeout(owlTimer); owlTimer = setTimeout(()=>b.classList.remove('show'), 3200);
+}
+setTimeout(()=>owlSay('Salvē! Ready for my questions? 🌿'), 800);
+
+function startQuiz(){
+  document.getElementById('intro').classList.remove('active');
+  document.getElementById('qcard').classList.add('active');
+  document.getElementById('hud').style.display = 'flex';
+  idx = -1; nextQ();
+}
+
+function setSkin(part){
+  const card = document.getElementById('qcard');
+  card.classList.remove('p-house','p-gods');
+  card.classList.add(part === 'house' ? 'p-house' : 'p-gods');
+  document.getElementById('qeyebrow').textContent =
+    part === 'house' ? 'Pars I · Domus Rōmāna — The Roman House' : 'Pars II · Deī Rōmānī et Graecī — Roman vs Greek Gods';
+}
+
+function nextQ(){
+  idx++;
+  if(idx >= total){ return finish(); }
+  const q = QS[idx];
+  setSkin(q.part);
+  document.getElementById('qcount').textContent = (idx+1) + ' / ' + total;
+  document.getElementById('pfill').style.width = (idx/total*100) + '%';
+  const ex = document.getElementById('qexplain');
+  ex.className = 'explain'; ex.textContent = '';
+  document.getElementById('nextbtn').disabled = true;
+  document.getElementById('nextbtn').textContent = (idx === total-1) ? 'See my score →' : 'Next →';
+  const ch = document.getElementById('qchoices');
+  const mg = document.getElementById('qmatch');
+  const mn = document.getElementById('matchnote');
+  mn.textContent = ''; mn.className = 'matchnote';
+  ch.innerHTML = ''; mg.innerHTML = '';
+
+  if(q.match){
+    document.getElementById('qemoji').textContent = '🎨';
+    document.getElementById('qtext').textContent = q.title + '  (a perfect round with no mistakes earns the star!)';
+    ch.style.display = 'none'; mg.style.display = 'flex';
+    buildMatch(q, mg, mn);
+  } else {
+    document.getElementById('qemoji').textContent = q.emoji;
+    document.getElementById('qtext').textContent = q.q;
+    ch.style.display = 'grid'; mg.style.display = 'none';
+    q.choices.forEach((c,i)=>{
+      const b = document.createElement('button');
+      b.className = 'choice'; b.textContent = c;
+      b.addEventListener('click', ()=>answer(q, i, b));
+      ch.appendChild(b);
+    });
+  }
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function answer(q, i, btn){
+  const buttons = document.querySelectorAll('#qchoices .choice');
+  buttons.forEach(b=>b.disabled = true);
+  const ex = document.getElementById('qexplain');
+  if(i === q.ok){
+    btn.classList.add('correct');
+    score++; updateScore();
+    ex.textContent = '⭐ ' + q.good; ex.className = 'explain show good';
+    owlSay(owlHappy[Math.floor(Math.random()*owlHappy.length)], true);
+    miniBurst();
+  } else {
+    btn.classList.add('wrong');
+    buttons[q.ok].classList.add('correct');
+    ex.textContent = q.bad; ex.className = 'explain show bad';
+    owlSay(owlSad[Math.floor(Math.random()*owlSad.length)], false);
+  }
+  document.getElementById('nextbtn').disabled = false;
+}
+
+function buildMatch(q, grid, note){
+  let mistakes = 0, matched = 0, pickedWord = null, pickedDef = null;
+  const words = q.pairs.map(p=>p[0]);
+  const defs = q.pairs.map(p=>p[1]).slice().sort(()=>Math.random()-.5);
+  const rowW = document.createElement('div'); rowW.className = 'matchrow';
+  const rowD = document.createElement('div'); rowD.className = 'matchrow';
+  words.forEach(w=>{
+    const b = document.createElement('button'); b.className='mword'; b.textContent = w; b.dataset.pair = w;
+    b.addEventListener('click', ()=>{ if(b.classList.contains('matched'))return;
+      if(pickedWord) pickedWord.classList.remove('picked'); pickedWord = b; b.classList.add('picked'); judge(); });
+    rowW.appendChild(b);
+  });
+  q.pairs.forEach(p=>{}); // keep pair order reference
+  defs.forEach(d=>{
+    const pairKey = q.pairs.find(p=>p[1]===d)[0];
+    const b = document.createElement('button'); b.className='memoji'; b.textContent = d; b.dataset.pair = pairKey;
+    b.addEventListener('click', ()=>{ if(b.classList.contains('matched'))return;
+      if(pickedDef) pickedDef.classList.remove('picked'); pickedDef = b; b.classList.add('picked'); judge(); });
+    rowD.appendChild(b);
+  });
+  grid.appendChild(rowW); grid.appendChild(rowD);
+
+  function judge(){
+    if(!pickedWord || !pickedDef) return;
+    if(pickedWord.dataset.pair === pickedDef.dataset.pair){
+      pickedWord.classList.remove('picked'); pickedDef.classList.remove('picked');
+      pickedWord.classList.add('matched'); pickedDef.classList.add('matched');
+      pickedWord = pickedDef = null; matched++;
+      if(matched === q.pairs.length){
+        const ex = document.getElementById('qexplain');
+        if(mistakes === 0){ score++; updateScore(); ex.textContent = '⭐ Perfect round! Bubō is doing a little dance.'; ex.className='explain show good';
+          owlSay('A PERFECT match! Hoot hoot! 🎉', true); miniBurst(); }
+        else { ex.textContent = 'All matched! (' + mistakes + ' slip' + (mistakes>1?'s':'') + ' — no star this time, but well recovered!)'; ex.className='explain show bad';
+          owlSay('All matched! Practice makes perfect 🌿', true); }
+        document.getElementById('nextbtn').disabled = false;
+      } else { note.textContent = 'Match! ' + (q.pairs.length - matched) + ' to go 🎯'; note.className = 'matchnote good'; }
+    } else {
+      mistakes++;
+      const w = pickedWord, d = pickedDef;
+      w.classList.add('nope'); d.classList.add('nope');
+      setTimeout(()=>{ w.classList.remove('nope'); d.classList.remove('nope'); }, 500);
+      w.classList.remove('picked'); d.classList.remove('picked');
+      pickedWord = pickedDef = null;
+      note.textContent = 'Not a pair — try again!'; note.className = 'matchnote bad';
+      owlSay(owlSad[Math.floor(Math.random()*owlSad.length)], false);
+    }
+  }
+}
+
+function updateScore(){ document.getElementById('scorebox').textContent = '⭐ ' + score; }
+
+function finish(){
+  document.getElementById('qcard').classList.remove('active');
+  document.getElementById('results').classList.add('active');
+  document.getElementById('pfill').style.width = '100%';
+  document.getElementById('finalscore').textContent = score + ' / ' + total;
+  let rank, msg;
+  if(score >= 13){ rank = '🏛️ Dea Olympī — Goddess of Olympus!'; msg = 'Flawless! You know the Roman house and the gods better than most Romans did. Bubō bows to you.'; }
+  else if(score >= 10){ rank = '🌿 Sacerdōs Māgna — High Priestess!'; msg = 'Wonderful work! Just a few rooms or gods slipped past you — one more round and Olympus is yours.'; }
+  else if(score >= 6){ rank = '⭐ Discipula Fortis — Brave Student!'; msg = 'A solid start! Read Bubō\u2019s explanations once more, then try again — the gods reward persistence.'; }
+  else { rank = '🌱 Tīrō Fortūnāta — Lucky Beginner!'; msg = 'The villa is big and Olympus is bigger! Play again and watch your stars grow — Bubō will be cheering.'; }
+  document.getElementById('finalrank').textContent = rank;
+  document.getElementById('finalmsg').textContent = msg;
+  if(score >= 10){ dropConfetti(70); setTimeout(()=>dropConfetti(50),1200); setTimeout(()=>dropConfetti(50),2600); }
+  else { dropConfetti(35); }
+  owlSay('Quiz complete! ' + score + ' stars! 🎉', true);
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function dropConfetti(count){
+  const bits = ['💜','🌿','⭐','🌸','💙','💚','✨','🦉','🏛️','🎉'];
+  for(let i=0;i<count;i++){
+    const el = document.createElement('div');
+    el.className='confetti'; el.textContent = bits[Math.floor(Math.random()*bits.length)];
+    el.style.left = Math.random()*100+'vw';
+    el.style.fontSize = (1+Math.random()*1.2)+'rem';
+    el.style.animationDuration = (2.2+Math.random()*2.4)+'s';
+    el.style.animationDelay = (Math.random()*0.9)+'s';
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),6000);
+  }
+}
+function miniBurst(){ dropConfetti(14); }
+</script>
+</body>
+</html>
