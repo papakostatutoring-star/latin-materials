@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tempus Fugit — A Latin Escape Room · Glossomathia</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Nunito:wght@400;600;700;800&display=swap">
+<style>
+  :root{
+    --parchment:#fdfbf6;
+    --card:#ffffff;
+    --ink:#4a4458;
+    --muted:#8b839c;
+    --purple:#8e7cc3; --purple-deep:#6d5b87; --purple-bg:#f7eef9;
+    --blue:#7aa6b9;   --blue-deep:#3f6d82;   --blue-bg:#e9f1f7;
+    --green:#6fae84;  --green-deep:#3f7a54;  --green-bg:#eaf6ee;
+    --rose:#c98bb0;   --rose-deep:#9c5980;   --rose-bg:#fbeef5;
+    --gold:#c9a227;   --gold-soft:#f3e7c3;
+    --lavender:#ece3f7;
+    --wrong:#c96a6a;
+    --radius:18px;
+    --shadow:0 6px 24px rgba(74,68,88,.10);
+  }
+  :root:not([data-theme="light"]) body{ background:var(--parchment); }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{ -webkit-text-size-adjust:100%; }
+  body{
+    font-family:'Nunito', 'Segoe UI', system-ui, sans-serif;
+    background:var(--parchment);
+    color:var(--ink);
+    min-height:100vh;
+    line-height:1.55;
+  }
+  #confetti-canvas{
+    position:fixed; inset:0; width:100%; height:100%;
+    pointer-events:none; z-index:999;
+  }
+  .wrap{
+    max-width:680px; margin:0 auto; padding:24px 18px 60px;
+  }
+  h1,h2,h3,.display{
+    font-family:'Cormorant Garamond', Georgia, serif;
+  }
+  /* ---------- header ---------- */
+  header{ text-align:center; margin-bottom:18px; }
+  .wordmark{
+    font-family:'Cormorant Garamond', Georgia, serif;
+    font-size:.95rem; letter-spacing:.28em; color:#b3a7c9;
+    text-transform:uppercase; font-weight:600;
+  }
+  h1.title{
+    font-size:clamp(2.3rem, 8vw, 3.4rem);
+    font-weight:700; color:var(--purple);
+    line-height:1.05; margin-top:6px;
+  }
+  h1.title .flies{ font-style:italic; color:var(--rose); }
+  .subtitle{ color:#a88bcf; font-size:1.02rem; margin-top:8px; }
+
+  /* ---------- seals / progress ---------- */
+  .seals{ display:flex; justify-content:center; gap:12px; margin:20px 0 8px; }
+  .seal{
+    width:52px; height:52px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Cormorant Garamond', Georgia, serif;
+    font-size:1.5rem; font-weight:700;
+    background:var(--lavender); color:#c3b8d8;
+    border:2px dashed #d8cdea;
+    transition:all .5s cubic-bezier(.34,1.56,.64,1);
+  }
+  .seal.won{
+    background:var(--gold-soft); color:var(--gold);
+    border:2px solid var(--gold);
+    transform:scale(1.08) rotate(-6deg);
+    box-shadow:0 4px 14px rgba(201,162,39,.35);
+  }
+  .seal-hint{ text-align:center; font-size:.85rem; color:var(--muted); margin-bottom:16px; }
+
+  /* ---------- cards / rooms ---------- */
+  .room{
+    background:var(--card); border-radius:var(--radius);
+    box-shadow:var(--shadow); padding:26px 22px;
+    display:none; animation:enter .45s ease both;
+  }
+  .room.active{ display:block; }
+  @keyframes enter{ from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:none;} }
+  @media (prefers-reduced-motion: reduce){
+    *{ animation:none !important; transition:none !important; }
+  }
+  .room-tag{
+    display:inline-block; font-size:.8rem; font-weight:800;
+    padding:4px 14px; border-radius:999px; margin-bottom:10px;
+    letter-spacing:.04em;
+  }
+  .room h2{ font-size:1.9rem; font-weight:700; line-height:1.15; margin-bottom:6px; }
+  .room .story{ color:var(--muted); font-size:.98rem; margin-bottom:18px; }
+  .room .story em{ color:var(--ink); font-style:italic; }
+
+  /* section colour families */
+  .fam-purple .room-tag{ background:var(--purple-bg); color:var(--purple-deep); }
+  .fam-purple h2{ color:var(--purple); }
+  .fam-blue .room-tag{ background:var(--blue-bg); color:var(--blue-deep); }
+  .fam-blue h2{ color:var(--blue-deep); }
+  .fam-green .room-tag{ background:var(--green-bg); color:var(--green-deep); }
+  .fam-green h2{ color:var(--green-deep); }
+  .fam-rose .room-tag{ background:var(--rose-bg); color:var(--rose-deep); }
+  .fam-rose h2{ color:var(--rose-deep); }
+  .fam-gold .room-tag{ background:var(--gold-soft); color:#8a6d10; }
+  .fam-gold h2{ color:#a37f14; }
+
+  /* ---------- generic buttons ---------- */
+  button{ font-family:inherit; cursor:pointer; }
+  .btn{
+    display:inline-block; border:none; border-radius:999px;
+    padding:13px 30px; font-size:1.05rem; font-weight:800;
+    background:var(--purple); color:#fff;
+    box-shadow:0 4px 14px rgba(142,124,195,.35);
+    transition:transform .15s ease;
+  }
+  .btn:active{ transform:scale(.96); }
+  .btn.gold{ background:var(--gold); box-shadow:0 4px 14px rgba(201,162,39,.35); }
+
+  /* matching game */
+  .match-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .match-col{ display:flex; flex-direction:column; gap:10px; }
+  .chip{
+    border:2px solid var(--lavender); background:#faf8fd;
+    border-radius:14px; padding:12px 8px; font-size:1.08rem; font-weight:700;
+    color:var(--ink); transition:all .2s ease; text-align:center;
+  }
+  .chip.latin{ font-family:'Cormorant Garamond', Georgia, serif; font-size:1.3rem; }
+  .chip.selected{ border-color:var(--purple); background:var(--purple-bg); transform:scale(1.03); }
+  .chip.locked{
+    border-color:var(--green); background:var(--green-bg); color:var(--green-deep);
+    pointer-events:none; opacity:.9;
+  }
+  .chip.shake{ animation:shake .35s ease; border-color:var(--wrong); }
+  @keyframes shake{ 0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
+
+  /* quiz options */
+  .q-word{
+    font-family:'Cormorant Garamond', Georgia, serif;
+    font-size:2.2rem; font-weight:700; text-align:center;
+    color:var(--ink); margin:10px 0 4px;
+  }
+  .q-gloss{ text-align:center; color:var(--muted); font-size:.9rem; margin-bottom:16px; }
+  .opts{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .opts.one-col{ grid-template-columns:1fr; }
+  .opt{
+    border:2px solid var(--lavender); background:#faf8fd; border-radius:14px;
+    padding:14px 10px; font-size:1.02rem; font-weight:700; color:var(--ink);
+    transition:all .2s ease;
+  }
+  .opt.right{ border-color:var(--green); background:var(--green-bg); color:var(--green-deep); }
+  .opt.wrong{ animation:shake .35s ease; border-color:var(--wrong); background:#fbeeee; }
+  .counter{ text-align:center; font-size:.85rem; color:var(--muted); margin-top:14px; }
+
+  /* nunc / tunc */
+  .tense-btns{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:6px; }
+  .tense-btn{
+    border:none; border-radius:16px; padding:18px 10px; color:#fff;
+    font-size:1.15rem; font-weight:800; transition:transform .15s ease;
+  }
+  .tense-btn:active{ transform:scale(.95); }
+  .tense-btn small{ display:block; font-weight:600; font-size:.78rem; opacity:.9; margin-top:2px; }
+  .tense-btn.nunc{ background:var(--blue); }
+  .tense-btn.tunc{ background:var(--rose); }
+
+  /* tile builder */
+  .build-target{
+    text-align:center; font-weight:700; color:var(--ink);
+    background:var(--green-bg); border-radius:14px; padding:12px; margin-bottom:14px;
+  }
+  .slot-row{
+    display:flex; justify-content:center; align-items:center; gap:6px;
+    min-height:64px; margin-bottom:16px; flex-wrap:wrap;
+  }
+  .slot{
+    min-width:82px; height:56px; border-radius:12px;
+    border:2px dashed #cbe3d3; background:#f4faf6;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Cormorant Garamond', Georgia, serif;
+    font-size:1.5rem; font-weight:700; color:var(--green-deep);
+    padding:0 10px;
+  }
+  .slot.filled{ border-style:solid; border-color:var(--green); background:var(--green-bg); }
+  .tiles{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center; }
+  .tile{
+    border:2px solid var(--green); background:#fff; border-radius:12px;
+    padding:10px 18px; font-family:'Cormorant Garamond', Georgia, serif;
+    font-size:1.4rem; font-weight:700; color:var(--green-deep);
+    transition:all .15s ease;
+  }
+  .tile:disabled{ opacity:.25; }
+  .tile.shake{ animation:shake .35s ease; border-color:var(--wrong); color:var(--wrong); }
+
+  /* final gate */
+  .code-slots{ display:flex; justify-content:center; gap:8px; margin:18px 0; }
+  .code-slot{
+    width:54px; height:62px; border-radius:12px;
+    border:2px dashed #e0d3a9; background:#fcf8ec;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Cormorant Garamond', Georgia, serif;
+    font-size:2rem; font-weight:700; color:var(--gold);
+  }
+  .code-slot.filled{ border-style:solid; border-color:var(--gold); background:var(--gold-soft); }
+  .letter-tiles{ display:flex; justify-content:center; gap:10px; flex-wrap:wrap; }
+  .letter-tile{
+    width:56px; height:56px; border-radius:50%;
+    border:2px solid var(--gold); background:#fff;
+    font-family:'Cormorant Garamond', Georgia, serif;
+    font-size:1.7rem; font-weight:700; color:var(--gold);
+    transition:all .15s ease;
+  }
+  .letter-tile:disabled{ opacity:.25; }
+  .gate-hint{ text-align:center; color:var(--muted); font-size:.92rem; margin-top:14px; }
+  .gate-hint em{ color:var(--rose-deep); }
+  .undo{
+    display:block; margin:12px auto 0; background:none; border:none;
+    color:var(--muted); font-weight:700; text-decoration:underline; font-size:.88rem;
+  }
+
+  /* victory */
+  #victory{ text-align:center; }
+  #victory .laurel{ font-size:3rem; }
+  #victory h2{ font-size:2.6rem; color:var(--gold); }
+  #victory .motto{
+    font-family:'Cormorant Garamond', Georgia, serif; font-style:italic;
+    font-size:1.3rem; color:var(--purple-deep); margin:8px 0 16px;
+  }
+  .recap{
+    text-align:left; background:var(--lavender); border-radius:14px;
+    padding:16px 18px; font-size:.95rem; margin:0 auto 20px; max-width:480px;
+  }
+  .recap p{ margin:6px 0; }
+  .recap .lat{ font-family:'Cormorant Garamond', Georgia, serif; font-weight:700; font-size:1.1rem; }
+
+  /* intro */
+  #intro{ text-align:center; }
+  #intro .scene{
+    background:var(--purple-bg); border-radius:14px; padding:18px;
+    font-size:1rem; margin-bottom:20px; text-align:left;
+  }
+  #intro .scene p{ margin-bottom:10px; }
+  #intro .scene p:last-child{ margin-bottom:0; }
+
+  .feedback{
+    text-align:center; min-height:26px; font-weight:800; margin-top:12px;
+    font-size:.98rem;
+  }
+  .feedback.good{ color:var(--green-deep); }
+  .feedback.bad{ color:var(--wrong); }
+
+  footer{
+    text-align:center; margin-top:36px; color:#b3a7c9;
+    font-family:'Cormorant Garamond', Georgia, serif; font-size:1rem;
+  }
+</style>
+</head>
+<body>
+<canvas id="confetti-canvas"></canvas>
+
+<div class="wrap">
+  <header>
+    <div class="wordmark">Glossomathia 🌿</div>
+    <h1 class="title">Tempus <span class="flies">Fugit</span></h1>
+    <p class="subtitle">A Latin escape room · present &amp; imperfect tense</p>
+  </header>
+
+  <div class="seals" id="seals">
+    <div class="seal" data-i="0">?</div>
+    <div class="seal" data-i="1">?</div>
+    <div class="seal" data-i="2">?</div>
+    <div class="seal" data-i="3">?</div>
+    <div class="seal" data-i="4">?</div>
+  </div>
+  <p class="seal-hint">Solve each room to win a golden letter.</p>
+
+  <!-- INTRO -->
+  <section class="room active" id="intro">
+    <div class="scene">
+      <p>You step into a quiet Roman villa. In the atrium stands a great water clock, but the water hangs frozen in mid-drip. Time has stopped.</p>
+      <p>On the wall, someone has scratched a message:</p>
+      <p><em>"Time froze because the tenses got tangled. Untangle the <strong>now</strong> from the <strong>back then</strong>, gather the five golden letters, and speak the magic word at the Door of Time."</em></p>
+    </div>
+    <button class="btn" onclick="goTo('room1')">Enter the villa</button>
+  </section>
+
+  <!-- ROOM 1: match pronouns to endings -->
+  <section class="room fam-purple" id="room1">
+    <span class="room-tag">Room I · Ātrium</span>
+    <h2>The Ending Mosaic</h2>
+    <p class="story">Six mosaic tiles have fallen from the floor. Match each pronoun to the verb ending that belongs to it. <em>Tap a pronoun, then tap its ending.</em></p>
+    <div class="match-grid">
+      <div class="match-col" id="m-left"></div>
+      <div class="match-col" id="m-right"></div>
+    </div>
+    <div class="feedback" id="fb1"></div>
+  </section>
+
+  <!-- ROOM 2: whose action is it -->
+  <section class="room fam-blue" id="room2">
+    <span class="room-tag">Room II · Tablīnum</span>
+    <h2>Whose Action Is It?</h2>
+    <p class="story">Scrolls lie scattered on the desk, each with one verb. The ending tells you who is acting. Pick the hidden subject.</p>
+    <div class="q-word" id="q2-word"></div>
+    <div class="q-gloss" id="q2-gloss"></div>
+    <div class="opts" id="q2-opts"></div>
+    <div class="counter" id="q2-counter"></div>
+    <div class="feedback" id="fb2"></div>
+  </section>
+
+  <!-- ROOM 3: nunc vs tunc -->
+  <section class="room fam-rose" id="room3">
+    <span class="room-tag">Room III · Hōrologium</span>
+    <h2>Now or Back Then?</h2>
+    <p class="story">The clock room. Verbs swirl in the frozen air. Send each one to its own time: <strong>NUNC</strong> if it happens now (present), <strong>TUNC</strong> if it was going on back then (imperfect, the <em>-bā-</em> verbs).</p>
+    <div class="q-word" id="q3-word"></div>
+    <div class="q-gloss" id="q3-gloss"></div>
+    <div class="tense-btns">
+      <button class="tense-btn nunc" onclick="answerTense('nunc')">NUNC<small>now · present</small></button>
+      <button class="tense-btn tunc" onclick="answerTense('tunc')">TUNC<small>back then · imperfect</small></button>
+    </div>
+    <div class="counter" id="q3-counter"></div>
+    <div class="feedback" id="fb3"></div>
+  </section>
+
+  <!-- ROOM 4: build the imperfect -->
+  <section class="room fam-green" id="room4">
+    <span class="room-tag">Room IV · Officīna</span>
+    <h2>The Verb Forge</h2>
+    <p class="story">A workbench with three empty molds. Forge each imperfect verb from its three parts: <strong>stem + bā + ending</strong>. Tap the tiles in order.</p>
+    <div class="build-target" id="b-target"></div>
+    <div class="slot-row" id="b-slots"></div>
+    <div class="tiles" id="b-tiles"></div>
+    <div class="counter" id="b-counter"></div>
+    <div class="feedback" id="fb4"></div>
+  </section>
+
+  <!-- ROOM 5: translation locks -->
+  <section class="room fam-purple" id="room5">
+    <span class="room-tag">Room V · Bibliothēca</span>
+    <h2>The Translation Locks</h2>
+    <p class="story">Three locked chests. Each opens only for the true translation.</p>
+    <div class="q-word" id="q5-word"></div>
+    <div class="q-gloss" id="q5-gloss"></div>
+    <div class="opts one-col" id="q5-opts"></div>
+    <div class="counter" id="q5-counter"></div>
+    <div class="feedback" id="fb5"></div>
+  </section>
+
+  <!-- FINAL GATE -->
+  <section class="room fam-gold" id="gate">
+    <span class="room-tag">Porta Temporis</span>
+    <h2>The Door of Time</h2>
+    <p class="story">Five golden letters glow in your hand. Arrange them into the magic word and time will flow again.</p>
+    <div class="code-slots" id="code-slots"></div>
+    <div class="letter-tiles" id="letter-tiles"></div>
+    <button class="undo" onclick="undoLetter()">↺ take back a letter</button>
+    <p class="gate-hint">Hint: <em>Tempus ________</em> … "time flies!"</p>
+    <div class="feedback" id="fbG"></div>
+  </section>
+
+  <!-- VICTORY -->
+  <section class="room" id="victory">
+    <div class="laurel">🏛️🌿</div>
+    <h2>TEMPVS FVGIT!</h2>
+    <p class="motto">The water drips, the clock turns, time flies once more.</p>
+    <div class="recap">
+      <p><span class="lat">Present</span> = happening <strong>now</strong> → -ō, -s, -t, -mus, -tis, -nt</p>
+      <p><span class="lat">Imperfect</span> = going on <strong>back then</strong> → stem + <strong>bā</strong> + m, s, t, mus, tis, nt</p>
+      <p><span class="lat">-bā-</span> is your time machine: it always means "was / were …-ing" or "used to".</p>
+    </div>
+    <button class="btn gold" onclick="celebrate(140)">More confetti! 🎊</button>
+    <button class="btn" style="margin-left:8px" onclick="location.reload()">Play again</button>
+  </section>
+
+  <footer>❀ Glossomathia · Play · Listen · Learn</footer>
+</div>
+
+<script>
+/* ================= CONFETTI ENGINE ================= */
+const canvas = document.getElementById('confetti-canvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+const BRAND = ['#8e7cc3','#7aa6b9','#6fae84','#c98bb0','#c9a227','#a88bcf','#f3e7c3'];
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function sizeCanvas(){ canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+sizeCanvas(); window.addEventListener('resize', sizeCanvas);
+
+function burst(x, y, n){
+  if(reduceMotion) n = Math.min(n, 20);
+  for(let i=0;i<n;i++){
+    const a = Math.random()*Math.PI*2;
+    const sp = 3 + Math.random()*6;
+    particles.push({
+      x, y,
+      vx: Math.cos(a)*sp,
+      vy: Math.sin(a)*sp - 2,
+      w: 6+Math.random()*6, h: 4+Math.random()*5,
+      rot: Math.random()*Math.PI, vr: (Math.random()-.5)*.3,
+      color: BRAND[Math.floor(Math.random()*BRAND.length)],
+      life: 90+Math.random()*50,
+      shape: Math.random()<.25 ? 'circle' : 'rect'
+    });
+  }
+}
+function celebrate(n=100){
+  burst(canvas.width*0.5, canvas.height*0.35, n);
+  setTimeout(()=>burst(canvas.width*0.2, canvas.height*0.3, n*0.6), 180);
+  setTimeout(()=>burst(canvas.width*0.8, canvas.height*0.3, n*0.6), 360);
+}
+function smallPop(el){
+  const r = el ? el.getBoundingClientRect() : {left:canvas.width/2, top:canvas.height/2, width:0, height:0};
+  burst(r.left + r.width/2, r.top + r.height/2, 26);
+}
+(function loop(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  particles = particles.filter(p=>p.life>0 && p.y < canvas.height+30);
+  for(const p of particles){
+    p.x += p.vx; p.y += p.vy;
+    p.vy += 0.12; p.vx *= 0.99;
+    p.rot += p.vr; p.life--;
+    ctx.save();
+    ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+    ctx.globalAlpha = Math.min(1, p.life/40);
+    ctx.fillStyle = p.color;
+    if(p.shape==='circle'){ ctx.beginPath(); ctx.arc(0,0,p.w/2,0,Math.PI*2); ctx.fill(); }
+    else ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+    ctx.restore();
+  }
+  requestAnimationFrame(loop);
+})();
+
+/* ================= GAME STATE ================= */
+const LETTERS = ['F','U','G','I','T'];
+let sealsWon = 0;
+
+function goTo(id){
+  document.querySelectorAll('.room').forEach(r=>r.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0, behavior: reduceMotion ? 'auto' : 'smooth'});
+}
+function winSeal(nextId){
+  const seal = document.querySelector(`.seal[data-i="${sealsWon}"]`);
+  seal.textContent = LETTERS[sealsWon];
+  seal.classList.add('won');
+  smallPop(seal);
+  celebrate(60);
+  sealsWon++;
+  setTimeout(()=>goTo(nextId), 1100);
+}
+
+/* ================= ROOM 1: MATCHING ================= */
+const PAIRS = [
+  ['ego','-ō'], ['tū','-s'], ['is / ea / id','-t'],
+  ['nōs','-mus'], ['vōs','-tis'], ['eī / eae','-nt']
+];
+let m1sel = null, m1done = 0;
+(function initMatch(){
+  const L = document.getElementById('m-left');
+  const R = document.getElementById('m-right');
+  const lefts = [...PAIRS].sort(()=>Math.random()-.5);
+  const rights = [...PAIRS].sort(()=>Math.random()-.5);
+  lefts.forEach(p=>{
+    const b=document.createElement('button');
+    b.className='chip'; b.textContent=p[0]; b.dataset.key=p[0];
+    b.onclick=()=>pickLeft(b); L.appendChild(b);
+  });
+  rights.forEach(p=>{
+    const b=document.createElement('button');
+    b.className='chip latin'; b.textContent=p[1]; b.dataset.key=p[0];
+    b.onclick=()=>pickRight(b); R.appendChild(b);
+  });
+})();
+function pickLeft(b){
+  if(b.classList.contains('locked')) return;
+  document.querySelectorAll('#m-left .chip').forEach(c=>c.classList.remove('selected'));
+  b.classList.add('selected'); m1sel = b;
+}
+function pickRight(b){
+  if(!m1sel || b.classList.contains('locked')) return;
+  const fb = document.getElementById('fb1');
+  if(b.dataset.key === m1sel.dataset.key){
+    b.classList.add('locked'); m1sel.classList.add('locked');
+    m1sel.classList.remove('selected');
+    smallPop(b);
+    fb.textContent = 'Euge! ✦'; fb.className='feedback good';
+    m1sel = null; m1done++;
+    if(m1done === 6){
+      fb.textContent = 'The mosaic is whole! A golden F appears.';
+      setTimeout(()=>winSeal('room2'), 700);
+    }
+  } else {
+    b.classList.add('shake'); m1sel.classList.add('shake');
+    fb.textContent = 'Those tiles don\u2019t fit together. Try again!'; fb.className='feedback bad';
+    setTimeout(()=>{ b.classList.remove('shake'); m1sel && m1sel.classList.remove('shake'); }, 400);
+  }
+}
+
+/* ================= ROOM 2: WHOSE ACTION ================= */
+const Q2 = [
+  {w:'vocāmus',  g:'vocāre · to call',      a:'nōs',       o:['ego','nōs','vōs','eī']},
+  {w:'labōrant', g:'labōrāre · to work',    a:'eī',        o:['is / ea','eī','nōs','tū']},
+  {w:'habitās',  g:'habitāre · to live',    a:'tū',        o:['tū','vōs','ego','eī']},
+  {w:'portātis', g:'portāre · to carry',    a:'vōs',       o:['nōs','tū','vōs','is / ea']},
+  {w:'laudō',    g:'laudāre · to praise',   a:'ego',       o:['ego','tū','eī','nōs']}
+];
+let q2i = 0, q2lock = false;
+function renderQ2(){
+  const q = Q2[q2i];
+  document.getElementById('q2-word').textContent = q.w;
+  document.getElementById('q2-gloss').textContent = q.g;
+  document.getElementById('q2-counter').textContent = `Scroll ${q2i+1} of ${Q2.length}`;
+  const box = document.getElementById('q2-opts'); box.innerHTML='';
+  [...q.o].sort(()=>Math.random()-.5).forEach(opt=>{
+    const b=document.createElement('button');
+    b.className='opt'; b.textContent=opt;
+    b.onclick=()=>{
+      if(q2lock) return;
+      const fb=document.getElementById('fb2');
+      if(opt===q.a){
+        q2lock=true; b.classList.add('right'); smallPop(b);
+        fb.textContent='Rēctē! ✦'; fb.className='feedback good';
+        q2i++;
+        setTimeout(()=>{
+          q2lock=false; document.getElementById('fb2').textContent='';
+          if(q2i < Q2.length) renderQ2();
+          else winSeal('room3');
+        }, 750);
+      } else {
+        b.classList.add('wrong');
+        fb.textContent=`Look at the ending again: ${q.w.slice(-4)}`; fb.className='feedback bad';
+        setTimeout(()=>b.classList.remove('wrong'), 450);
+      }
+    };
+    box.appendChild(b);
+  });
+}
+renderQ2();
+
+/* ================= ROOM 3: NUNC / TUNC ================= */
+const Q3 = [
+  {w:'clāmābant', g:'clāmāre · to shout',  a:'tunc'},
+  {w:'amat',      g:'amāre · to love',     a:'nunc'},
+  {w:'spectābās', g:'spectāre · to watch', a:'tunc'},
+  {w:'portāmus',  g:'portāre · to carry',  a:'nunc'},
+  {w:'nārrābam',  g:'nārrāre · to tell',   a:'tunc'},
+  {w:'pugnant',   g:'pugnāre · to fight',  a:'nunc'},
+  {w:'parābātis', g:'parāre · to prepare', a:'tunc'},
+  {w:'ambulō',    g:'ambulāre · to walk',  a:'nunc'}
+];
+let q3i = 0, q3lock=false;
+function renderQ3(){
+  const q = Q3[q3i];
+  document.getElementById('q3-word').textContent = q.w;
+  document.getElementById('q3-gloss').textContent = q.g;
+  document.getElementById('q3-counter').textContent = `Verb ${q3i+1} of ${Q3.length}`;
+}
+function answerTense(pick){
+  if(q3lock) return;
+  const q = Q3[q3i], fb = document.getElementById('fb3');
+  if(pick === q.a){
+    q3lock=true;
+    smallPop(document.getElementById('q3-word'));
+    fb.textContent = q.a==='tunc' ? 'Yes — you spotted the -bā-! ✦' : 'Yes — no -bā-, so it\u2019s happening now! ✦';
+    fb.className='feedback good';
+    q3i++;
+    setTimeout(()=>{
+      q3lock=false; fb.textContent='';
+      if(q3i < Q3.length) renderQ3();
+      else winSeal('room4');
+    }, 800);
+  } else {
+    fb.textContent = 'Hmm — check for the -bā- time machine!';
+    fb.className='feedback bad';
+  }
+}
+renderQ3();
+
+/* ================= ROOM 4: VERB FORGE ================= */
+const BUILDS = [
+  {en:'we were preparing',   parts:['parā','bā','mus'],  extra:['tis','vocā']},
+  {en:'you (sg.) were calling', parts:['vocā','bā','s'], extra:['mus','portā']},
+  {en:'they were carrying',  parts:['portā','ba','nt'],  extra:['t','labōrā']}
+];
+let b4i = 0, b4step = 0;
+function renderBuild(){
+  const b = BUILDS[b4i];
+  b4step = 0;
+  document.getElementById('b-target').textContent = `Forge: "${b.en}"`;
+  document.getElementById('b-counter').textContent = `Mold ${b4i+1} of ${BUILDS.length}`;
+  const slots = document.getElementById('b-slots'); slots.innerHTML='';
+  ['stem','bā','ending'].forEach(lbl=>{
+    const s=document.createElement('div'); s.className='slot'; s.textContent='·'; s.dataset.lbl=lbl;
+    slots.appendChild(s);
+  });
+  const tiles = document.getElementById('b-tiles'); tiles.innerHTML='';
+  [...b.parts, ...b.extra].sort(()=>Math.random()-.5).forEach(t=>{
+    const btn=document.createElement('button');
+    btn.className='tile'; btn.textContent=t;
+    btn.onclick=()=>placeTile(btn, t);
+    tiles.appendChild(btn);
+  });
+}
+function placeTile(btn, t){
+  const b = BUILDS[b4i], fb = document.getElementById('fb4');
+  if(t === b.parts[b4step]){
+    const slot = document.querySelectorAll('#b-slots .slot')[b4step];
+    slot.textContent = t; slot.classList.add('filled');
+    btn.disabled = true; b4step++;
+    if(b4step === 3){
+      smallPop(slot);
+      fb.textContent = `${b.parts.join('')} — forged! ✦`;
+      fb.className='feedback good';
+      b4i++;
+      setTimeout(()=>{
+        fb.textContent='';
+        if(b4i < BUILDS.length) renderBuild();
+        else winSeal('room5');
+      }, 900);
+    }
+  } else {
+    btn.classList.add('shake');
+    const need = ['the stem','the -bā- time machine','the personal ending'][b4step];
+    fb.textContent = `Not yet — you need ${need} next.`;
+    fb.className='feedback bad';
+    setTimeout(()=>btn.classList.remove('shake'), 400);
+  }
+}
+renderBuild();
+
+/* ================= ROOM 5: TRANSLATION LOCKS ================= */
+const Q5 = [
+  {w:'Agricola in agrīs cottīdiē labōrābat.', g:'agricola = farmer · ager = field', a:'The farmer used to work in the fields every day.',
+   o:['The farmer works in the fields every day.',
+      'The farmer used to work in the fields every day.',
+      'The farmers were working in the field.']},
+  {w:'Nautās prope rīpam spectābāmus.', g:'nauta = sailor · rīpa = riverbank', a:'We were watching the sailors near the riverbank.',
+   o:['We watch the sailors near the riverbank.',
+      'You all were watching the sailors near the riverbank.',
+      'We were watching the sailors near the riverbank.']},
+  {w:'"You (sg.) were calling" in Latin is …', g:'vocāre · to call', a:'vocābās',
+   o:['vocās','vocābās','vocābātis']}
+];
+let q5i = 0, q5lock=false;
+function renderQ5(){
+  const q = Q5[q5i];
+  document.getElementById('q5-word').textContent = q.w;
+  document.getElementById('q5-word').style.fontSize = q.w.length > 30 ? '1.5rem' : '2rem';
+  document.getElementById('q5-gloss').textContent = q.g;
+  document.getElementById('q5-counter').textContent = `Chest ${q5i+1} of ${Q5.length}`;
+  const box = document.getElementById('q5-opts'); box.innerHTML='';
+  [...q.o].sort(()=>Math.random()-.5).forEach(opt=>{
+    const b=document.createElement('button');
+    b.className='opt'; b.textContent=opt;
+    b.onclick=()=>{
+      if(q5lock) return;
+      const fb=document.getElementById('fb5');
+      if(opt===q.a){
+        q5lock=true; b.classList.add('right'); smallPop(b);
+        fb.textContent='The chest clicks open! ✦'; fb.className='feedback good';
+        q5i++;
+        setTimeout(()=>{
+          q5lock=false; fb.textContent='';
+          if(q5i < Q5.length) renderQ5();
+          else winSeal('gate');
+        }, 800);
+      } else {
+        b.classList.add('wrong');
+        fb.textContent='The lock won\u2019t budge. Check the tense and the person!';
+        fb.className='feedback bad';
+        setTimeout(()=>b.classList.remove('wrong'), 450);
+      }
+    };
+    box.appendChild(b);
+  });
+}
+renderQ5();
+
+/* ================= FINAL GATE ================= */
+let gateEntry = [];
+(function initGate(){
+  const slots = document.getElementById('code-slots');
+  for(let i=0;i<5;i++){
+    const s=document.createElement('div'); s.className='code-slot'; s.textContent='·';
+    slots.appendChild(s);
+  }
+  const tiles = document.getElementById('letter-tiles');
+  ['G','T','F','I','U'].forEach(l=>{
+    const b=document.createElement('button');
+    b.className='letter-tile'; b.textContent=l;
+    b.onclick=()=>placeLetter(b, l);
+    tiles.appendChild(b);
+  });
+})();
+function placeLetter(btn, l){
+  if(gateEntry.length >= 5) return;
+  gateEntry.push({btn, l});
+  btn.disabled = true;
+  refreshGate();
+  if(gateEntry.length === 5) checkGate();
+}
+function undoLetter(){
+  const last = gateEntry.pop();
+  if(last){ last.btn.disabled = false; refreshGate(); }
+  const fb=document.getElementById('fbG'); fb.textContent='';
+}
+function refreshGate(){
+  document.querySelectorAll('.code-slot').forEach((s,i)=>{
+    if(gateEntry[i]){ s.textContent = gateEntry[i].l; s.classList.add('filled'); }
+    else { s.textContent='·'; s.classList.remove('filled'); }
+  });
+}
+function checkGate(){
+  const word = gateEntry.map(e=>e.l).join('');
+  const fb = document.getElementById('fbG');
+  if(word === 'FUGIT'){
+    fb.textContent = 'The door swings open!'; fb.className='feedback good';
+    setTimeout(()=>{
+      goTo('victory');
+      celebrate(160);
+      if(!reduceMotion){
+        let rains = 0;
+        const rain = setInterval(()=>{
+          burst(Math.random()*canvas.width, -10, 24);
+          if(++rains > 24) clearInterval(rain);
+        }, 220);
+      }
+    }, 700);
+  } else {
+    fb.textContent = 'The door stays shut… try another order. (Hint: tempus ____!)';
+    fb.className='feedback bad';
+    setTimeout(()=>{
+      gateEntry.forEach(e=>e.btn.disabled=false);
+      gateEntry = []; refreshGate();
+    }, 900);
+  }
+}
+</script>
+</body>
+</html>
